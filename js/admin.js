@@ -1858,7 +1858,7 @@ class AdminApp {
             
             // Render each stop as a movable block
             stopsHtml += `
-                <div style="display: flex; align-items: center; justify-content: space-between; padding: 1rem; border: 1px solid var(--border-color); border-radius: 4px; margin-bottom: 0.5rem; background: #fff;">
+                <div id="route-stop-row-${index}" class="route-stop-row" style="display: flex; align-items: center; justify-content: space-between; padding: 1rem; border: 1px solid var(--border-color); border-radius: 4px; margin-bottom: 0.5rem; background: #fff;">
                     <div style="display: flex; align-items: center; gap: 1rem;">
                         <div style="font-weight: 700; color: var(--primary); width: 24px; text-align: center;">${index + 1}</div>
                         <div style="font-weight: 600; font-size: 1.1rem;">${stop.name}</div>
@@ -1949,6 +1949,12 @@ class AdminApp {
             this.currentEditStopIds[index - 1] = this.currentEditStopIds[index];
             this.currentEditStopIds[index] = temp;
             this.renderRouteStopsEditor(innerScroll, outerScroll);
+            
+            // Trigger animation on the newly rendered elements
+            const itemMovingUp = document.getElementById(`route-stop-row-${index - 1}`);
+            const itemMovingDown = document.getElementById(`route-stop-row-${index}`);
+            if (itemMovingUp) itemMovingUp.classList.add('route-stop-moving-up');
+            if (itemMovingDown) itemMovingDown.classList.add('route-stop-moving-down');
         }
     }
     
@@ -1962,6 +1968,12 @@ class AdminApp {
             this.currentEditStopIds[index + 1] = this.currentEditStopIds[index];
             this.currentEditStopIds[index] = temp;
             this.renderRouteStopsEditor(innerScroll, outerScroll);
+            
+            // Trigger animation on the newly rendered elements
+            const itemMovingDown = document.getElementById(`route-stop-row-${index + 1}`);
+            const itemMovingUp = document.getElementById(`route-stop-row-${index}`);
+            if (itemMovingDown) itemMovingDown.classList.add('route-stop-moving-down');
+            if (itemMovingUp) itemMovingUp.classList.add('route-stop-moving-up');
         }
     }
     
