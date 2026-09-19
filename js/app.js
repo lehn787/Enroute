@@ -10,13 +10,6 @@ class App {
         await store.initializeData();
         this.initRouter();
         this.render();
-        
-        // Start real-time status interval
-        setInterval(() => this.updateRealTimeStatus(), 60000);
-        
-        // Start live clock
-        setInterval(() => this.updateLiveClock(), 1000);
-        this.updateLiveClock();
     }
 
     formatTime(timeString) {
@@ -29,68 +22,6 @@ class App {
         h = h % 12;
         h = h ? h : 12;
         return `${h.toString().padStart(2, '0')}:${m} ${ampm}`;
-    }
-
-    updateLiveClock() {
-        const clockEl = document.getElementById('live-clock');
-        if (!clockEl) return;
-        
-        const now = new Date();
-        const options = { 
-            hour: '2-digit', 
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: true 
-        };
-        const formatter = new Intl.DateTimeFormat('en-US', options);
-        clockEl.textContent = `${formatter.format(now)} Local`;
-    }
-
-    getMinuteDifference(busTimeStr) {
-        if (!busTimeStr || busTimeStr.includes('Start') || busTimeStr === '--:--') return null;
-        
-        const now = new Date();
-        const localHour = now.getHours();
-        const localMinute = now.getMinutes();
-        
-        const localTotalMinutes = (localHour * 60) + localMinute;
-        
-        const busParts = busTimeStr.split(':');
-        const busHour = parseInt(busParts[0], 10);
-        const busMinute = parseInt(busParts[1], 10);
-        const busTotalMinutes = (busHour * 60) + busMinute;
-        
-        let diffMinutes = busTotalMinutes - localTotalMinutes;
-        
-        // Handle midnight crossings (e.g. now is 23:00, bus is 01:00)
-        // Only wrap around if the time difference is more than 18 hours (1080 mins)
-        if (diffMinutes < -1080) diffMinutes += 1440; 
-        if (diffMinutes > 1080) diffMinutes -= 1440;
-        
-        return diffMinutes;
-    }
-
-    updateRealTimeStatus() {
-        document.querySelectorAll('.real-time-status').forEach(el => {
-            const timeStr = el.getAttribute('data-time');
-            const diffMinutes = this.getMinuteDifference(timeStr);
-            if (diffMinutes === null) return;
-            
-            const labelEl = el.querySelector('.status-label');
-            const timeEl = el.querySelector('.status-time');
-            if (!labelEl || !timeEl) return;
-            
-            if (diffMinutes < 0) {
-                labelEl.textContent = 'DEPARTED';
-                timeEl.style.color = '#94a3b8'; // muted gray/red
-            } else if (diffMinutes <= 5) {
-                labelEl.textContent = 'LEAVING SOON';
-                timeEl.style.color = '#f59e0b'; // amber
-            } else {
-                labelEl.textContent = 'UPCOMING';
-                timeEl.style.color = 'var(--success)'; // green
-            }
-        });
     }
 
     initRouter() {
@@ -311,9 +242,8 @@ class App {
                                         ${store.getStopById(res.route.origin_stop_id).name} → ${store.getStopById(res.route.destination_stop_id).name}
                                     </p>
                                 </div>
-                                <div style="text-align: right;" class="real-time-status" data-time="${res.arrivalTime}">
-                                    <p class="status-label" style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.25rem; transition: color 0.3s ease;">UPCOMING</p>
-                                    <p class="status-time" style="font-size: 1.25rem; font-weight: 700; color: var(--success); transition: color 0.3s ease;">${this.formatTime(res.arrivalTime)}</p>
+                                <div style="text-align: right;">
+                                    <p style="font-size: 1.25rem; font-weight: 700; color: var(--success);">${this.formatTime(res.arrivalTime)}</p>
                                 </div>
                             </div>
                             <div style="background: var(--bg-page); padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem;">
@@ -326,7 +256,6 @@ class App {
                 });
             }
             document.getElementById('stop-search-results').innerHTML = resHtml;
-            this.updateRealTimeStatus();
         });
     }
 
@@ -371,9 +300,9 @@ class App {
                                 <h3 style="font-size: 1.5rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.25rem;">${result.bus.name}</h3>
                                 <p style="color: var(--text-muted); font-size: 0.9rem;">${routeOrigin ? routeOrigin.name : ''} → ${routeDest ? routeDest.name : ''}</p>
                             </div>
-                            <div style="text-align: right;" class="real-time-status" data-time="${result.originTime}">
-                                <p class="status-label" style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.25rem; transition: color 0.3s ease;">UPCOMING</p>
-                                <p class="status-time" style="font-size: 1.25rem; font-weight: 700; color: var(--success); transition: color 0.3s ease;">${this.formatTime(result.originTime)}</p>
+                            <div style="text-align: right;">
+                                <p style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.25rem;">NEXT BUS</p>
+                                <p style="font-size: 1.25rem; font-weight: 700; color: var(--success);">${this.formatTime(result.originTime)}</p>
                             </div>
                         </div>
                         
@@ -390,7 +319,6 @@ class App {
 
         html += `</div>`;
         this.mainContent.innerHTML = html;
-        this.updateRealTimeStatus();
     }
 
     renderBusDetails(tripId) {
