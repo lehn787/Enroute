@@ -1845,7 +1845,7 @@ class AdminApp {
         this.renderRouteStopsEditor();
     }
 
-    renderRouteStopsEditor() {
+    renderRouteStopsEditor(innerScroll = 0, outerScroll = 0) {
         const container = document.getElementById('admin-modal-container');
         const route = store.getRouteById(this.currentEditRouteId);
         const bus = store.getBusById(route.bus_id);
@@ -1890,7 +1890,7 @@ class AdminApp {
                     <button class="btn" onclick="window.adminApp.closeRouteStopsEditor()" style="font-size: 1.5rem; line-height: 1; padding: 0.25rem 0.5rem;">&times;</button>
                 </div>
                 
-                <div style="padding: 1.5rem; overflow-y: auto; flex: 1; background: #f8fafc;">
+                <div id="route-stops-scroll-area" style="padding: 1.5rem; overflow-y: auto; flex: 1; background: #f8fafc;">
                     <div id="route-editor-error" class="hidden" style="background: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 4px; margin-bottom: 1rem; font-weight: 500; font-size: 0.875rem;"></div>
                     
                     <div style="margin-bottom: 1.5rem;">
@@ -1917,6 +1917,10 @@ class AdminApp {
         
         container.innerHTML = html;
         container.classList.remove('hidden');
+        
+        if (outerScroll > 0) container.scrollTop = outerScroll;
+        const scrollArea = document.getElementById('route-stops-scroll-area');
+        if (scrollArea && innerScroll > 0) scrollArea.scrollTop = innerScroll;
     }
 
     closeRouteStopsEditor() {
@@ -1937,19 +1941,27 @@ class AdminApp {
     
     moveStopUp(index) {
         if (index > 0) {
+            const scrollArea = document.getElementById('route-stops-scroll-area');
+            const innerScroll = scrollArea ? scrollArea.scrollTop : 0;
+            const outerScroll = document.getElementById('admin-modal-container').scrollTop;
+            
             const temp = this.currentEditStopIds[index - 1];
             this.currentEditStopIds[index - 1] = this.currentEditStopIds[index];
             this.currentEditStopIds[index] = temp;
-            this.renderRouteStopsEditor();
+            this.renderRouteStopsEditor(innerScroll, outerScroll);
         }
     }
     
     moveStopDown(index) {
         if (index < this.currentEditStopIds.length - 1) {
+            const scrollArea = document.getElementById('route-stops-scroll-area');
+            const innerScroll = scrollArea ? scrollArea.scrollTop : 0;
+            const outerScroll = document.getElementById('admin-modal-container').scrollTop;
+            
             const temp = this.currentEditStopIds[index + 1];
             this.currentEditStopIds[index + 1] = this.currentEditStopIds[index];
             this.currentEditStopIds[index] = temp;
-            this.renderRouteStopsEditor();
+            this.renderRouteStopsEditor(innerScroll, outerScroll);
         }
     }
     
@@ -1957,8 +1969,12 @@ class AdminApp {
         const stopId = this.currentEditStopIds[index];
         const stopName = store.getStopById(stopId).name;
         if (confirm(`Remove ${stopName} from this route?`)) {
+            const scrollArea = document.getElementById('route-stops-scroll-area');
+            const innerScroll = scrollArea ? scrollArea.scrollTop : 0;
+            const outerScroll = document.getElementById('admin-modal-container').scrollTop;
+            
             this.currentEditStopIds.splice(index, 1);
-            this.renderRouteStopsEditor();
+            this.renderRouteStopsEditor(innerScroll, outerScroll);
         }
     }
     
@@ -1975,8 +1991,20 @@ class AdminApp {
             return;
         }
         
+        const scrollArea = document.getElementById('route-stops-scroll-area');
+        const innerScroll = scrollArea ? scrollArea.scrollTop : 0;
+        const outerScroll = document.getElementById('admin-modal-container').scrollTop;
+        
         this.currentEditStopIds.push(stopId);
-        this.renderRouteStopsEditor();
+        this.renderRouteStopsEditor(innerScroll, outerScroll);
+        
+        // Scroll to the bottom of the inner scroll area to show the new stop
+        setTimeout(() => {
+            const newScrollArea = document.getElementById('route-stops-scroll-area');
+            if (newScrollArea) {
+                newScrollArea.scrollTop = newScrollArea.scrollHeight;
+            }
+        }, 10);
     }
     
     async saveRouteStops() {
