@@ -113,16 +113,33 @@ class Store {
                     const originTime = this.getStopTimes().find(st => st.trip_id === trip.id && st.stop_id === originId);
                     const destTime = this.getStopTimes().find(st => st.trip_id === trip.id && st.stop_id === destinationId);
 
-                    if (originTime && destTime) {
-                        matchingTrips.push({
-                            bus: this.getBusById(route.bus_id),
-                            route: route,
-                            trip: trip,
-                            originTime: originTime.departure_time,
-                            destTime: destTime.arrival_time,
-                            stops: routeStops
-                        });
+                    let departureTime = originTime ? originTime.departure_time : null;
+                    let arrivalTime = destTime ? destTime.arrival_time : null;
+
+                    // If exact time is not logged for this specific stop, find the first available time for the trip
+                    if (!departureTime) {
+                        const tripTimes = this.getStopTimes().filter(st => st.trip_id === trip.id);
+                        if (tripTimes.length > 0) {
+                            // Sort chronologically
+                            tripTimes.sort((a, b) => (a.departure_time || '').localeCompare(b.departure_time || ''));
+                            departureTime = tripTimes[0].departure_time + " (Start)";
+                        } else {
+                            departureTime = "--:--";
+                        }
                     }
+
+                    if (!arrivalTime) {
+                        arrivalTime = "--:--";
+                    }
+
+                    matchingTrips.push({
+                        bus: this.getBusById(route.bus_id),
+                        route: route,
+                        trip: trip,
+                        originTime: departureTime,
+                        destTime: arrivalTime,
+                        stops: routeStops
+                    });
                 });
             }
         });

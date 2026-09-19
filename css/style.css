@@ -321,3 +321,98 @@ button {
     0% { transform: translateY(calc(-100% - 0.5rem)); }
     100% { transform: translateY(0); }
 }
+
+/* --- HOVER ANIMATION SYSTEM --- */
+@media (prefers-reduced-motion: no-preference) {
+    /* Primary Buttons */
+    .btn-primary {
+        transition: background-color 0.2s ease-out, transform 0.15s ease-out, box-shadow 0.2s ease-out, filter 0.2s ease-out;
+    }
+    .btn-primary:hover {
+        filter: brightness(1.05);
+        transform: translateY(-1px) scale(1.01);
+        box-shadow: 0 6px 12px rgba(4, 136, 252, 0.25);
+    }
+    .btn-primary:active {
+        transform: scale(0.98);
+        box-shadow: 0 2px 4px rgba(4, 136, 252, 0.15);
+    }
+
+    /* Focus State for accessibility */
+    .btn:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
+        outline: 2px solid var(--primary);
+        outline-offset: 2px;
+    }
+
+    /* Secondary / Outline Buttons */
+    .btn-outline-primary {
+        transition: all 0.2s ease-out;
+    }
+    .btn-outline-primary:hover {
+        background-color: rgba(4, 136, 252, 0.05);
+        border-color: var(--primary-dark);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+    .btn-outline-primary:active {
+        transform: scale(0.98);
+    }
+    
+    .btn-outline-danger {
+        transition: all 0.2s ease-out;
+    }
+    .btn-outline-danger:hover {
+        background-color: rgba(239, 68, 68, 0.05);
+        border-color: #b91c1c;
+        transform: translateY(-1px);
+    }
+    .btn-outline-danger:active {
+        transform: scale(0.98);
+    }
+
+    /* Navigation Items */
+    .nav-link, .admin-nav-link {
+        transition: color 0.2s ease-out, background-color 0.2s ease-out;
+    }
+    .nav-link:hover, .admin-nav-link:not(.active):hover {
+        color: var(--primary);
+        background-color: rgba(0, 0, 0, 0.03);
+    }
+    .nav-link:active, .admin-nav-link:active {
+        transform: scale(0.98);
+    }
+
+    /* Cards / Clickable Components */
+    .card, .bus-card, .data-grid-row {
+        transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s ease-out;
+    }
+    a.card:hover, a.bus-card:hover, .data-grid-row:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Inputs & Selects */
+    input, select {
+        transition: border-color 0.2s ease-out, box-shadow 0.2s ease-out;
+    }
+    input:hover, select:hover {
+        border-color: var(--primary-light);
+    }
+    input:focus, select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(4, 136, 252, 0.15);
+        outline: none;
+    }
+
+    /* Generic buttons */
+    .btn:not(.btn-primary):not(.btn-outline-primary):not(.btn-outline-danger) {
+        transition: all 0.2s ease-out;
+    }
+    .btn:not(.btn-primary):not(.btn-outline-primary):not(.btn-outline-danger):hover {
+        background-color: rgba(0, 0, 0, 0.03);
+        transform: translateY(-1px);
+    }
+    .btn:not(.btn-primary):not(.btn-outline-primary):not(.btn-outline-danger):active {
+        transform: scale(0.98);
+    }
+}

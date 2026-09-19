@@ -278,12 +278,15 @@ class App {
             html += `<p style="color: var(--text-muted); font-weight: 600; margin-bottom: 1rem; font-size: 0.875rem;">${results.length} BUSES FOUND</p>`;
 
             results.forEach(result => {
+                const routeOrigin = store.getStopById(result.stops[0].stop_id);
+                const routeDest = store.getStopById(result.stops[result.stops.length - 1].stop_id);
+                
                 html += `
                     <div class="card bus-card" style="background: var(--bg-card); padding: 1.5rem; border-radius: var(--border-radius); box-shadow: var(--shadow-md); margin-bottom: 1rem; border-left: 4px solid var(--primary);">
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
                             <div>
                                 <h3 style="font-size: 1.5rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.25rem;">${result.bus.name}</h3>
-                                <p style="color: var(--text-muted); font-size: 0.9rem;">${origin.name} → ${dest.name}</p>
+                                <p style="color: var(--text-muted); font-size: 0.9rem;">${routeOrigin ? routeOrigin.name : ''} → ${routeDest ? routeDest.name : ''}</p>
                             </div>
                             <div style="text-align: right;">
                                 <p style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.25rem;">NEXT BUS</p>

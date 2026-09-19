@@ -576,7 +576,7 @@ class AdminApp {
     // --- STOPS ---
 
     renderStops() {
-        const stops = store.getStops();
+        const stops = store.getStops().sort((a, b) => a.name.localeCompare(b.name));
         let rowsHtml = '';
 
         stops.forEach(stop => {
