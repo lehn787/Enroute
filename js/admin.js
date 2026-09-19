@@ -163,10 +163,11 @@ class AdminApp {
     renderLogin() {
         const html = `
             <div class="card" style="width: 100%; max-width: 400px; padding: 2rem; background: var(--bg-card); border-radius: var(--border-radius); box-shadow: var(--shadow-md);">
-                <div style="text-align: center; margin-bottom: 2rem;">
-                    <img src="img/logo.png" alt="EnRoute Logo" style="height: 48px; width: auto; margin: 0 auto 1rem auto; display: block;">
-                    <h2 style="color: var(--primary); font-weight: 800; font-size: 1.5rem; margin-bottom: 0.5rem;">EnRoute Admin</h2>
-                    <p style="color: var(--text-muted); font-size: 0.875rem;">Manage Kochi's bus routes, stops and schedules.</p>
+                <div style="text-align: center; margin-bottom: 2rem; display: flex; flex-direction: column; align-items: center;">
+                    <img src="img/logo.png" alt="EnRoute Logo" style="height: 62px; width: auto; margin: 0 auto 0.25rem auto; display: block;">
+                    <h2 style="color: var(--primary); font-weight: 800; font-size: 28px; margin: 0; line-height: 1; letter-spacing: -0.03em;">EnRoute</h2>
+                    <span style="font-size: 13px; font-weight: 700; color: var(--primary-dark); text-transform: uppercase; letter-spacing: 1px; line-height: 1; margin: 2px 0 16px 0;">ADMIN</span>
+                    <p style="color: var(--text-muted); font-size: 14px; font-weight: 500; margin: 0;">Manage Kochi's bus routes, stops and schedules.</p>
                 </div>
                 <div id="auth-error" class="hidden" style="background: #fee2e2; color: #b91c1c; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.875rem;"></div>
                 <form id="login-form">
