@@ -69,7 +69,7 @@ class App {
         const html = `
             <div class="home-container" style="max-width: 600px; margin: 0 auto;">
                 <div class="hero-section text-center" style="margin-bottom: 2rem;">
-                    <h1 style="font-size: 2.5rem; font-weight: 800; color: var(--primary); margin-bottom: 0.5rem;">EnRoute</h1>
+                    <img src="img/logo.png" alt="EnRoute Logo" style="display: block; margin: 0 auto 0.5rem auto; width: 120px; max-width: 100%; height: auto;">
                     <p style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.25rem;">Your bus. Your route. Your time.</p>
                     <p style="color: var(--text-muted);">Find the right city bus across Kochi.</p>
                 </div>

@@ -1,10 +1,10 @@
 /* Base Variables & Reset */
 :root {
     /* Brand Colors */
-    --primary: #4f46e5;
-    /* Vibrant Indigo */
-    --primary-dark: #4338ca;
-    --primary-light: #e0e7ff;
+    --primary: #0488fc;
+    /* Vibrant Logo Blue */
+    --primary-dark: #012551;
+    --primary-light: #e0f2fe;
 
     /* Secondary/Accent */
     --accent: #f59e0b;
@@ -87,10 +87,18 @@ button {
 }
 
 .logo-text {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
     font-weight: 800;
     color: var(--primary);
-    letter-spacing: -0.025em;
+    letter-spacing: -0.03em;
+    font-family: 'Inter', sans-serif;
+}
+
+.header-logo {
+    height: 44px;
+    width: auto;
+    object-fit: contain;
+    display: block;
 }
 
 .main-nav {
@@ -229,6 +237,11 @@ button {
 
 /* Mobile Responsiveness for Admin Portal */
 @media (max-width: 768px) {
+    /* Public Header */
+    .header-container { flex-direction: column; gap: 0.75rem; padding: 1rem 0.5rem; }
+    .header-logo { height: 36px; }
+    .main-nav { flex-wrap: wrap; justify-content: center; gap: 0.5rem; }
+
     /* Layout */
     .admin-layout { flex-direction: column; }
     .admin-main { width: 100%; padding: 16px; box-sizing: border-box; }

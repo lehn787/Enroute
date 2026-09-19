@@ -164,6 +164,7 @@ class AdminApp {
         const html = `
             <div class="card" style="width: 100%; max-width: 400px; padding: 2rem; background: var(--bg-card); border-radius: var(--border-radius); box-shadow: var(--shadow-md);">
                 <div style="text-align: center; margin-bottom: 2rem;">
+                    <img src="img/logo.png" alt="EnRoute Logo" style="height: 48px; width: auto; margin: 0 auto 1rem auto; display: block;">
                     <h2 style="color: var(--primary); font-weight: 800; font-size: 1.5rem; margin-bottom: 0.5rem;">EnRoute Admin</h2>
                     <p style="color: var(--text-muted); font-size: 0.875rem;">Manage Kochi's bus routes, stops and schedules.</p>
                 </div>
@@ -218,6 +219,7 @@ class AdminApp {
         const html = `
             <div class="card" style="width: 100%; max-width: 400px; padding: 2rem; background: var(--bg-card); border-radius: var(--border-radius); box-shadow: var(--shadow-md);">
                 <div style="text-align: center; margin-bottom: 2rem;">
+                    <img src="img/logo.png" alt="EnRoute Logo" style="height: 48px; width: auto; margin: 0 auto 1rem auto; display: block;">
                     <h2 style="color: var(--primary); font-weight: 800; font-size: 1.5rem; margin-bottom: 0.5rem;">Create Admin Account</h2>
                     <p style="color: var(--text-muted); font-size: 0.875rem;">Join the EnRoute management team.</p>
                 </div>
