@@ -29,6 +29,9 @@ class TimetableParser {
         for (let i = 1; i < lines.length; i++) {
             const line = lines[i];
             const timeMatches = [...line.matchAll(timeRegex)];
+            
+            let formattedTime = '';
+            let rawStopName = line;
 
             if (timeMatches && timeMatches.length > 0) {
                 // Just take the first time for the primary trip
@@ -50,38 +53,37 @@ class TimetableParser {
                     hours = '0' + hours; // zero pad
                 }
                 
-                const formattedTime = `${hours}:${minutes}`;
+                formattedTime = `${hours}:${minutes}`;
 
                 // Extract stop name by removing ALL matched times from the line
-                let rawStopName = line;
                 timeMatches.forEach(match => {
                     rawStopName = rawStopName.replace(match[0], '');
                 });
+            }
 
-                // Remove non-alphabetical characters (handles table borders like | or dashes)
-                rawStopName = rawStopName.replace(/[^a-zA-Z\s]/g, '').trim();
+            // Remove special characters, but keep alphanumeric, spaces, and ampersands
+            rawStopName = rawStopName.replace(/[^a-zA-Z0-9\s&]/g, '').trim();
 
-                if (rawStopName.length > 1) {
-                    // Try to match the stop
-                    const matchedStop = window.store.getStopByNameOrAlias(rawStopName);
-                    
-                    stops.push({
-                        id: 'parsed_' + Date.now() + '_' + order, // temp ID for UI tracking
-                        rawName: rawStopName,
-                        canonicalName: matchedStop ? matchedStop.name : rawStopName,
-                        canonicalId: matchedStop ? matchedStop.id : null,
-                        warning: !matchedStop, // true if it needs human verification
-                        time: formattedTime,
-                        order: order
-                    });
-                    
-                    order++;
-                }
+            if (rawStopName.length > 1) {
+                // Try to match the stop
+                const matchedStop = window.store.getStopByNameOrAlias(rawStopName);
+                
+                stops.push({
+                    id: 'parsed_' + Date.now() + '_' + order, // temp ID for UI tracking
+                    rawName: rawStopName,
+                    canonicalName: matchedStop ? matchedStop.name : rawStopName,
+                    canonicalId: matchedStop ? matchedStop.id : null,
+                    warning: !matchedStop, // true if it needs human verification
+                    time: formattedTime,
+                    order: order
+                });
+                
+                order++;
             }
         }
 
         if (stops.length < 2) {
-            throw new Error('Could not identify at least two valid stops and timings in the text.');
+            throw new Error('Could not identify at least two valid stops in the text.');
         }
 
         return {

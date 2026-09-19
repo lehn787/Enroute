@@ -586,7 +586,7 @@ class AdminApp {
                     <div><span class="card-label">Aliases</span><div style="color: var(--text-muted); font-size: 0.875rem;">${aliases || '-'}</div></div>
                     <div><span class="card-label">Status</span><span style="background: ${stop.status==='active'?'#dcfce7':'#fee2e2'}; color: ${stop.status==='active'?'#166534':'#991b1b'}; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">${stop.status.toUpperCase()}</span></div>
                     <div class="card-actions" style="text-align: right;">
-                        <button class="btn" style="border: 1px solid var(--border-color); padding: 0.25rem 0.75rem; font-size: 0.875rem;" onclick="alert('Edit functionality not fully implemented in prototype')">Edit</button>
+                        <button class="btn" style="border: 1px solid var(--border-color); padding: 0.25rem 0.75rem; font-size: 0.875rem;" onclick="window.adminApp.openStopEditor('${stop.id}')">Edit</button>
                         <button class="btn" style="border: 1px solid #fca5a5; background: #fef2f2; color: #b91c1c; padding: 0.25rem 0.75rem; font-size: 0.875rem; margin-left: 0.5rem;" onclick="window.adminApp.openDeleteStopModal('${stop.id}')">Delete</button>
                     </div>
                 </div>
@@ -874,6 +874,170 @@ class AdminApp {
                 }, 100);
             }
         }, 500);
+    }
+
+    // --- STOP EDITOR ---
+
+    openStopEditor(stopId) {
+        const stop = store.getStopById(stopId);
+        if (stop) {
+            this.currentEditStop = { ...stop }; // clone
+            this.currentEditStopAliases = store.getAliases().filter(a => a.stop_id === stopId).map(a => a.alias);
+            this.renderStopEditorModal('Edit Stop');
+        }
+    }
+
+    openAddStopEditor() {
+        this.currentEditStop = { id: null, name: '', area: '', status: 'active' };
+        this.currentEditStopAliases = [];
+        this.renderStopEditorModal('Add Stop');
+    }
+
+    renderStopEditorModal(title) {
+        const container = document.getElementById('admin-modal-container');
+        const s = this.currentEditStop;
+        
+        let aliasesHtml = '';
+        this.currentEditStopAliases.forEach((alias, idx) => {
+            aliasesHtml += `
+                <div class="alias-row" style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                    <input type="text" class="edit-stop-alias" value="${alias}" style="flex: 1; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px; font-size: 1rem;" oninput="window.adminApp.markStopDirty()">
+                    <button class="btn" style="padding: 0 1rem; color: #b91c1c; border: 1px solid #fca5a5; background: #fef2f2;" onclick="window.adminApp.removeStopAliasField(${idx})">🗑</button>
+                </div>
+            `;
+        });
+
+        const html = `
+            <div style="max-width: 500px; margin: 0 auto; background: var(--bg-card); border-radius: 8px; box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1); border: 1px solid var(--border-color); display: flex; flex-direction: column; max-height: 90vh;">
+                <div style="padding: 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                    <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0;">${title}</h2>
+                    <button class="btn" onclick="window.adminApp.closeStopEditor()" style="font-size: 1.5rem; line-height: 1; padding: 0.25rem 0.5rem;">&times;</button>
+                </div>
+                
+                <div style="padding: 1.5rem; overflow-y: auto; background: #f8fafc;">
+                    <div id="stop-editor-error" class="hidden" style="background: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 4px; margin-bottom: 1rem; font-weight: 500; font-size: 0.875rem;"></div>
+                    
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.875rem; color: #334155;">Stop Name <span style="color:#b91c1c">*</span></label>
+                        <input type="text" id="edit-stop-name" value="${s.name}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px; font-size: 1rem;" oninput="window.adminApp.markStopDirty()">
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.875rem; color: #334155;">Area (Optional)</label>
+                        <input type="text" id="edit-stop-area" value="${s.area || ''}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px; font-size: 1rem;" oninput="window.adminApp.markStopDirty()">
+                    </div>
+                    
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.875rem; color: #334155;">Status</label>
+                        <select id="edit-stop-status" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px; font-size: 1rem;" onchange="window.adminApp.markStopDirty()">
+                            <option value="active" ${s.status==='active'?'selected':''}>Active</option>
+                            <option value="inactive" ${s.status==='inactive'?'selected':''}>Inactive</option>
+                        </select>
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <label style="font-weight: 600; font-size: 0.875rem; color: #334155;">Aliases (Alternative Names)</label>
+                            <button class="btn" style="border: 1px dashed var(--primary); color: var(--primary); padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="window.adminApp.addStopAliasField()">+ Add Alias</button>
+                        </div>
+                        <div id="edit-stop-aliases-container">
+                            ${aliasesHtml}
+                            ${this.currentEditStopAliases.length === 0 ? '<div style="color: var(--text-muted); font-size: 0.875rem; font-style: italic;">No aliases added.</div>' : ''}
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="padding: 1.5rem; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 1rem; background: #fff; border-radius: 0 0 8px 8px;">
+                    <button class="btn" style="border: 1px solid var(--border-color); padding: 0.75rem 1.5rem; font-weight: 600;" onclick="window.adminApp.closeStopEditor()">Cancel</button>
+                    <button id="save-stop-btn" class="btn btn-primary" style="padding: 0.75rem 2rem; font-weight: 600;" onclick="window.adminApp.saveStop()">Save Changes</button>
+                </div>
+            </div>
+        `;
+        
+        container.innerHTML = html;
+        container.classList.remove('hidden');
+        this.stopDirty = false;
+    }
+
+    markStopDirty() {
+        this.stopDirty = true;
+    }
+
+    addStopAliasField() {
+        // Collect current values before re-rendering
+        const inputs = document.querySelectorAll('.edit-stop-alias');
+        this.currentEditStopAliases = Array.from(inputs).map(inp => inp.value);
+        this.currentEditStopAliases.push('');
+        this.markStopDirty();
+        this.renderStopEditorModal(this.currentEditStop.id ? 'Edit Stop' : 'Add Stop');
+    }
+
+    removeStopAliasField(index) {
+        const inputs = document.querySelectorAll('.edit-stop-alias');
+        this.currentEditStopAliases = Array.from(inputs).map(inp => inp.value);
+        this.currentEditStopAliases.splice(index, 1);
+        this.markStopDirty();
+        this.renderStopEditorModal(this.currentEditStop.id ? 'Edit Stop' : 'Add Stop');
+    }
+
+    closeStopEditor() {
+        if (this.stopDirty) {
+            if (!confirm('You have unsaved changes. Discard them?')) return;
+        }
+        document.getElementById('admin-modal-container').classList.add('hidden');
+        document.getElementById('admin-modal-container').innerHTML = '';
+        this.currentEditStop = null;
+        this.currentEditStopAliases = null;
+    }
+
+    async saveStop() {
+        const name = document.getElementById('edit-stop-name').value.trim();
+        const area = document.getElementById('edit-stop-area').value.trim();
+        const status = document.getElementById('edit-stop-status').value;
+        
+        const inputs = document.querySelectorAll('.edit-stop-alias');
+        const aliases = Array.from(inputs).map(inp => inp.value.trim()).filter(v => v !== '');
+
+        const errEl = document.getElementById('stop-editor-error');
+        errEl.classList.add('hidden');
+        
+        if (!name) {
+            errEl.textContent = "Stop name is required.";
+            errEl.classList.remove('hidden');
+            return;
+        }
+
+        const btn = document.getElementById('save-stop-btn');
+        const oldText = btn.textContent;
+        btn.textContent = 'Saving...';
+        btn.disabled = true;
+
+        try {
+            let stopId = this.currentEditStop.id;
+            
+            if (stopId) {
+                // Update existing
+                await store.updateStop(stopId, { name, area, status });
+            } else {
+                // Create new
+                stopId = await store.addStop(name, area);
+                // addStop currently forces status='active', we can update it immediately if needed, 
+                // but usually a new stop is active anyway.
+            }
+            
+            // Save aliases
+            await store.updateStopAliases(stopId, aliases);
+            
+            this.stopDirty = false;
+            this.closeStopEditor();
+            this.renderStops();
+            
+        } catch (err) {
+            errEl.textContent = err.message || "Failed to save stop.";
+            errEl.classList.remove('hidden');
+            btn.textContent = oldText;
+            btn.disabled = false;
+        }
     }
 
     // --- ROUTES ---

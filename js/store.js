@@ -252,6 +252,30 @@ class Store {
         if (stop) Object.assign(stop, updates);
     }
 
+    async updateStopAliases(stopId, newAliasList) {
+        // First delete all existing aliases for this stop
+        const { error: delError } = await window.authService.supabase.from('aliases').delete().eq('stop_id', stopId);
+        if (delError) throw delError;
+
+        // Insert new aliases
+        if (newAliasList && newAliasList.length > 0) {
+            const records = newAliasList.map(a => ({
+                stop_id: stopId,
+                alias: a.trim()
+            }));
+            const { error: insError } = await window.authService.supabase.from('aliases').insert(records);
+            if (insError) throw insError;
+        }
+
+        // Update local store
+        this.data.aliases = this.data.aliases.filter(a => a.stop_id !== stopId);
+        if (newAliasList && newAliasList.length > 0) {
+            newAliasList.forEach(a => {
+                this.data.aliases.push({ stop_id: stopId, alias: a.trim() });
+            });
+        }
+    }
+
     async deleteStop(stopId) {
         const { error } = await window.authService.supabase.from('stops').delete().eq('id', stopId);
         if (error) throw error;
