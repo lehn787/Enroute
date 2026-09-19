@@ -156,7 +156,7 @@ class ImportApp {
                     ${stopsHtml}
                 </div>
                 <div style="padding: 1rem;">
-                    <button class="btn" style="border: 1px dashed var(--border-color); width: 100%; color: var(--text-muted);">+ Add Stop</button>
+                    <button id="add-stop-btn" class="btn" style="border: 1px dashed var(--border-color); width: 100%; color: var(--text-muted);">+ Add Stop</button>
                 </div>
             </div>
             
@@ -179,6 +179,32 @@ class ImportApp {
             btn.addEventListener('click', (e) => {
                 e.target.closest('.stop-row').remove();
             });
+        });
+
+        // Handle Add Stop
+        document.getElementById('add-stop-btn').addEventListener('click', () => {
+            const list = document.getElementById('review-stops-list');
+            const newRow = document.createElement('div');
+            newRow.className = 'stop-row ocr-stop-row';
+            newRow.style = 'display: flex; gap: 1rem; align-items: center; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); background: transparent;';
+            newRow.innerHTML = `
+                <div style="display: flex; align-items: center;">
+                    <input type="text" class="stop-name-input" placeholder="Stop Name" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px;">
+                </div>
+                <div>
+                    <input type="time" class="stop-time-input" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px; font-family: monospace;">
+                </div>
+                <div>
+                    <button class="remove-stop-btn btn" style="padding: 0.25rem 0.5rem; color: #b91c1c; border: 1px solid #fca5a5;">✕</button>
+                </div>
+            `;
+            
+            // Add remove listener to new button
+            newRow.querySelector('.remove-stop-btn').addEventListener('click', (e) => {
+                e.target.closest('.stop-row').remove();
+            });
+            
+            list.appendChild(newRow);
         });
 
         // Handle Approve
