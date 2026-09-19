@@ -31,6 +31,35 @@ class AdminApp {
             });
         }
         
+        // Mobile Drawer Logic
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const closeBtn = document.getElementById('mobile-close-btn');
+        const overlay = document.getElementById('mobile-drawer-overlay');
+        const sidebar = document.getElementById('admin-sidebar');
+        
+        const toggleDrawer = () => {
+            if (sidebar && overlay) {
+                sidebar.classList.toggle('open');
+                overlay.classList.toggle('open');
+            }
+        };
+        
+        const closeDrawer = () => {
+            if (sidebar && overlay) {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('open');
+            }
+        };
+        
+        if (menuBtn) menuBtn.addEventListener('click', toggleDrawer);
+        if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
+        if (overlay) overlay.addEventListener('click', closeDrawer);
+        
+        // Close drawer on navigation
+        document.querySelectorAll('.admin-nav-link').forEach(link => {
+            link.addEventListener('click', closeDrawer);
+        });
+        
         this.route();
     }
 
@@ -483,12 +512,12 @@ class AdminApp {
 
         filteredBuses.forEach(bus => {
             rowsHtml += `
-                <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 1rem; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color); align-items: center;">
-                    <div style="font-weight: 600;">${bus.name}</div>
-                    <div style="color: var(--text-muted); font-size: 0.875rem;">${bus.operator}</div>
-                    <div style="color: var(--text-muted); font-size: 0.875rem;">${bus.type}</div>
-                    <div><span style="background: ${bus.status==='active'?'#dcfce7':'#fee2e2'}; color: ${bus.status==='active'?'#166534':'#991b1b'}; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">${bus.status.toUpperCase()}</span></div>
-                    <div style="text-align: right;">
+                <div class="data-grid-row" style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 1rem; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color); align-items: center;">
+                    <div><span class="card-label">Bus Name</span><div style="font-weight: 600; font-size: 1.1rem; color: var(--primary);">${bus.name}</div></div>
+                    <div><span class="card-label">Operator</span><div style="color: var(--text-muted); font-size: 0.875rem;">${bus.operator}</div></div>
+                    <div><span class="card-label">Type</span><div style="color: var(--text-muted); font-size: 0.875rem;">${bus.type}</div></div>
+                    <div><span class="card-label">Status</span><span style="background: ${bus.status==='active'?'#dcfce7':'#fee2e2'}; color: ${bus.status==='active'?'#166534':'#991b1b'}; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">${bus.status.toUpperCase()}</span></div>
+                    <div class="card-actions" style="text-align: right;">
                         <button class="btn" style="border: 1px solid var(--border-color); padding: 0.25rem 0.75rem; font-size: 0.875rem;" onclick="window.adminApp.openBusEditor('${bus.id}')">Edit</button>
                         <button class="btn" style="border: 1px solid var(--border-color); padding: 0.25rem 0.75rem; font-size: 0.875rem; margin-left: 0.5rem; background: var(--bg-page);" onclick="window.adminApp.renderBusConfiguration('${bus.id}')">Configure</button>
                         <button class="btn" style="border: 1px solid #fca5a5; background: #fef2f2; color: #b91c1c; padding: 0.25rem 0.75rem; font-size: 0.875rem; margin-left: 0.5rem;" onclick="window.adminApp.openDeleteBusModal('${bus.id}')">Delete</button>
@@ -503,8 +532,8 @@ class AdminApp {
 
         const html = `
             <div style="max-width: 1000px; margin: 0 auto;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                    <h2 style="font-size: 1.5rem; font-weight: 700;">Bus Management</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                    <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0;">Bus Management</h2>
                     <button class="btn btn-primary" onclick="window.adminApp.openAddBusEditor()">+ Add Bus</button>
                 </div>
                 
@@ -513,7 +542,7 @@ class AdminApp {
                 </div>
                 
                 <div style="background: var(--bg-card); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden;">
-                    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 1rem; padding: 1rem 1.5rem; background: var(--bg-page); border-bottom: 1px solid var(--border-color); font-weight: 700; font-size: 0.875rem; color: var(--text-muted);">
+                    <div class="data-grid-header" style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 1rem; padding: 1rem 1.5rem; background: var(--bg-page); border-bottom: 1px solid var(--border-color); font-weight: 700; font-size: 0.875rem; color: var(--text-muted);">
                         <div>BUS NAME</div>
                         <div>OPERATOR</div>
                         <div>TYPE</div>
@@ -550,13 +579,13 @@ class AdminApp {
         stops.forEach(stop => {
             const aliases = store.getAliases().filter(a => a.stop_id === stop.id).map(a => a.alias).join(', ');
             rowsHtml += `
-                <div style="display: grid; grid-template-columns: 40px 2fr 1fr 2fr 1fr 1fr; gap: 1rem; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color); align-items: center;">
-                    <div><input type="checkbox" class="stop-checkbox" value="${stop.id}" onchange="window.adminApp.updateMultipleDeleteButton()" style="cursor: pointer; width: 1.2rem; height: 1.2rem;"></div>
-                    <div style="font-weight: 600;">${stop.name}</div>
-                    <div style="color: var(--text-muted); font-size: 0.875rem;">${stop.area}</div>
-                    <div style="color: var(--text-muted); font-size: 0.875rem;">${aliases || '-'}</div>
-                    <div><span style="background: ${stop.status==='active'?'#dcfce7':'#fee2e2'}; color: ${stop.status==='active'?'#166534':'#991b1b'}; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">${stop.status.toUpperCase()}</span></div>
-                    <div style="text-align: right;">
+                <div class="data-grid-row" style="display: grid; grid-template-columns: 40px 2fr 1fr 2fr 1fr 1fr; gap: 1rem; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color); align-items: center;">
+                    <div style="flex-direction: row !important; align-items: center;"><input type="checkbox" class="stop-checkbox" value="${stop.id}" onchange="window.adminApp.updateMultipleDeleteButton()" style="cursor: pointer; width: 1.2rem; height: 1.2rem; margin-right: 8px;"> <span class="card-label" style="margin:0;">Select</span></div>
+                    <div><span class="card-label">Stop Name</span><div style="font-weight: 600; font-size: 1.1rem; color: var(--primary);">${stop.name}</div></div>
+                    <div><span class="card-label">Area</span><div style="color: var(--text-main); font-size: 0.875rem;">${stop.area}</div></div>
+                    <div><span class="card-label">Aliases</span><div style="color: var(--text-muted); font-size: 0.875rem;">${aliases || '-'}</div></div>
+                    <div><span class="card-label">Status</span><span style="background: ${stop.status==='active'?'#dcfce7':'#fee2e2'}; color: ${stop.status==='active'?'#166534':'#991b1b'}; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">${stop.status.toUpperCase()}</span></div>
+                    <div class="card-actions" style="text-align: right;">
                         <button class="btn" style="border: 1px solid var(--border-color); padding: 0.25rem 0.75rem; font-size: 0.875rem;" onclick="alert('Edit functionality not fully implemented in prototype')">Edit</button>
                         <button class="btn" style="border: 1px solid #fca5a5; background: #fef2f2; color: #b91c1c; padding: 0.25rem 0.75rem; font-size: 0.875rem; margin-left: 0.5rem;" onclick="window.adminApp.openDeleteStopModal('${stop.id}')">Delete</button>
                     </div>
@@ -566,16 +595,16 @@ class AdminApp {
 
         const html = `
             <div style="max-width: 1000px; margin: 0 auto;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                    <h2 style="font-size: 1.5rem; font-weight: 700;">Stop Management</h2>
-                    <div>
-                        <button class="btn" id="delete-selected-stops-btn" style="border: 1px solid #fca5a5; background: #fef2f2; color: #b91c1c; padding: 0.5rem 1rem; font-size: 0.875rem; margin-right: 1rem; opacity: 0.5; pointer-events: none;" onclick="window.adminApp.openDeleteMultipleStopsModal()">Delete Selected</button>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                    <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0;">Stop Management</h2>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <button class="btn" id="delete-selected-stops-btn" style="border: 1px solid #fca5a5; background: #fef2f2; color: #b91c1c; padding: 0.5rem 1rem; font-size: 0.875rem; opacity: 0.5; pointer-events: none;" onclick="window.adminApp.openDeleteMultipleStopsModal()">Delete Selected</button>
                         <button class="btn btn-primary">+ Add Stop</button>
                     </div>
                 </div>
                 
                 <div style="background: var(--bg-card); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden;">
-                    <div style="display: grid; grid-template-columns: 40px 2fr 1fr 2fr 1fr 1fr; gap: 1rem; padding: 1rem 1.5rem; background: var(--bg-page); border-bottom: 1px solid var(--border-color); font-weight: 700; font-size: 0.875rem; color: var(--text-muted); align-items: center;">
+                    <div class="data-grid-header" style="display: grid; grid-template-columns: 40px 2fr 1fr 2fr 1fr 1fr; gap: 1rem; padding: 1rem 1.5rem; background: var(--bg-page); border-bottom: 1px solid var(--border-color); font-weight: 700; font-size: 0.875rem; color: var(--text-muted); align-items: center;">
                         <div><input type="checkbox" id="select-all-stops" onchange="window.adminApp.toggleAllStops(this)" style="cursor: pointer; width: 1.2rem; height: 1.2rem;"></div>
                         <div>STOP NAME</div>
                         <div>AREA</div>
@@ -860,7 +889,7 @@ class AdminApp {
 
             rowsHtml += `
                 <div style="background: var(--bg-card); padding: 1.5rem; border-radius: 8px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+                    <div class="route-header-row" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
                         <div>
                             <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem;">${bus.name}</h3>
                             <div style="color: var(--text-muted); font-size: 0.875rem;">${store.getStopById(route.origin_stop_id).name} → ${store.getStopById(route.destination_stop_id).name}</div>
@@ -1707,7 +1736,7 @@ class AdminApp {
             const bus = store.getBusById(route.bus_id);
             
             rowsHtml += `
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color);">
+                <div class="route-header-row" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color);">
                     <div>
                         <div style="font-weight: 600;">${bus.name}</div>
                         <div style="color: var(--text-muted); font-size: 0.875rem;">${store.getStopById(route.origin_stop_id).name} → ${store.getStopById(route.destination_stop_id).name}</div>
@@ -1754,7 +1783,7 @@ class AdminApp {
             const timeStr = timing ? timing.arrival_time : '';
 
             stopsTimingsHtml += `
-                <div style="display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color);">
+                <div class="timing-row" style="display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color);">
                     <div style="font-weight: 500;">${stop.name}</div>
                     <input type="time" class="timing-input" data-trip="${trip.id}" data-stop="${stop.id}" value="${timeStr}" style="padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px; font-family: monospace; font-size: 1rem;">
                 </div>

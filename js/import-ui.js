@@ -103,7 +103,7 @@ class ImportApp {
             const bg = stop.warning ? 'background: #fef2f2;' : 'background: transparent;';
             
             stopsHtml += `
-                <div class="stop-row" data-id="${stop.id}" style="display: grid; grid-template-columns: 2fr 1fr 40px; gap: 1rem; align-items: center; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); ${bg}">
+                <div class="stop-row ocr-stop-row" data-id="${stop.id}" style="display: flex; gap: 1rem; align-items: center; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); ${bg}">
                     <div style="display: flex; align-items: center;">
                         <input type="text" class="stop-name-input" value="${stop.canonicalName}" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px;">
                         ${warningHtml}
@@ -127,7 +127,7 @@ class ImportApp {
                 <strong>Please verify extracted information before saving.</strong> Fields marked with ⚠ need your attention.
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+            <div class="ocr-form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
                 <div class="form-group">
                     <label style="display: block; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-muted);">BUS NAME</label>
                     <input type="text" id="review-bus-name" value="${this.currentData.busName}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px; font-weight: 600;">
@@ -147,7 +147,7 @@ class ImportApp {
             </div>
 
             <div style="background: var(--bg-card); border-radius: 8px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); margin-bottom: 2rem; overflow: hidden;">
-                <div style="padding: 1rem 1.5rem; background: var(--bg-page); border-bottom: 1px solid var(--border-color); display: grid; grid-template-columns: 2fr 1fr 40px; gap: 1rem; font-size: 0.75rem; font-weight: 700; color: var(--text-muted);">
+                <div class="data-grid-header" style="padding: 1rem 1.5rem; background: var(--bg-page); border-bottom: 1px solid var(--border-color); display: grid; grid-template-columns: 2fr 1fr 40px; gap: 1rem; font-size: 0.75rem; font-weight: 700; color: var(--text-muted);">
                     <div>STOP</div>
                     <div>TIME</div>
                     <div></div>
@@ -165,9 +165,9 @@ class ImportApp {
                 <pre style="margin-top: 1rem; font-size: 0.875rem; font-family: monospace; white-space: pre-wrap; color: var(--text-muted);">${this.rawText}</pre>
             </details>
 
-            <div style="display: flex; justify-content: flex-end; gap: 1rem; border-top: 1px solid var(--border-color); padding-top: 2rem; margin-bottom: 4rem;">
-                <button class="btn" style="border: 1px solid var(--border-color);" onclick="window.importApp.reset()">Reject Import</button>
-                <button id="approve-save-btn" class="btn btn-primary" style="padding: 0.75rem 2rem;">Approve & Save</button>
+            <div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 1rem; border-top: 1px solid var(--border-color); padding-top: 2rem; margin-bottom: 4rem;">
+                <button class="btn" style="border: 1px solid var(--border-color); flex: 1; min-width: max-content;" onclick="window.importApp.reset()">Reject Import</button>
+                <button id="approve-save-btn" class="btn btn-primary" style="padding: 0.75rem 2rem; flex: 1; min-width: max-content;">Approve & Save</button>
             </div>
         `;
         
