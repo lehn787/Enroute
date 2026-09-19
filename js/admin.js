@@ -21,9 +21,11 @@ class AdminApp {
         if (window.authService) {
             window.authService.onAuthStateChange((event, session) => {
                 if (event === 'PASSWORD_RECOVERY') {
+                    this._isRecovery = true;
                     history.replaceState(null, '', '#reset-password');
                     this.route();
                 } else if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+                    if (event === 'SIGNED_OUT') this._isRecovery = false;
                     this.route();
                 }
             });
@@ -66,7 +68,11 @@ class AdminApp {
         }
 
         // Handle reset-password explicitly even if a recovery session exists
-        if (hash.startsWith('#reset-password') || hash.includes('type=recovery') || hash.includes('access_token=')) {
+        if (this._isRecovery || hash.startsWith('#reset-password') || hash.includes('type=recovery') || hash.includes('access_token=')) {
+            // Force hash back to reset-password in case Supabase cleared it
+            if (window.location.hash !== '#reset-password') {
+                history.replaceState(null, '', '#reset-password');
+            }
             this.appContainer.classList.add('hidden');
             this.authContainer.classList.remove('hidden');
             this.renderResetPassword();
@@ -365,6 +371,7 @@ class AdminApp {
             if (error) {
                 // If it's an expired token error or generic update error
                 if (error.message.includes('expired') || error.message.includes('invalid')) {
+                    this._isRecovery = false;
                     this.renderResetExpired();
                 } else {
                     errDiv.textContent = error.message;
@@ -373,6 +380,7 @@ class AdminApp {
                     btn.disabled = false;
                 }
             } else {
+                this._isRecovery = false;
                 document.getElementById('reset-form-container').classList.add('hidden');
                 document.getElementById('reset-success-container').classList.remove('hidden');
             }
