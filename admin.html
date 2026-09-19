@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EnRoute Admin Portal</title>
+    <meta name="description" content="Admin dashboard for EnRoute.">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="css/style.css?v=13">
+</head>
+<body>
+    <div id="admin-auth-container" class="hidden" style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--bg-page); padding: 1rem;">
+        <!-- Login/Signup injected here -->
+    </div>
+
+    <div id="admin-app" class="hidden" style="display: flex; min-height: 100vh; background: var(--bg-page);">
+        <!-- Sidebar -->
+        <aside style="width: 250px; background: white; border-right: 1px solid var(--border-color); display: flex; flex-direction: column;">
+            <div style="padding: 1.5rem; border-bottom: 1px solid var(--border-color);">
+                <h1 style="font-size: 1.5rem; font-weight: 800; color: var(--primary); margin: 0;">EnRoute Admin</h1>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Manage transit data</p>
+            </div>
+            <nav style="flex: 1; padding: 1rem 0;">
+                <a href="#dashboard" class="admin-nav-link active" style="display: block; padding: 0.75rem 1.5rem; color: var(--text-main); text-decoration: none; font-weight: 500;">Dashboard</a>
+                <a href="#buses" class="admin-nav-link" style="display: block; padding: 0.75rem 1.5rem; color: var(--text-main); text-decoration: none; font-weight: 500;">Buses</a>
+                <a href="#stops" class="admin-nav-link" style="display: block; padding: 0.75rem 1.5rem; color: var(--text-main); text-decoration: none; font-weight: 500;">Stops</a>
+                <a href="#routes" class="admin-nav-link" style="display: block; padding: 0.75rem 1.5rem; color: var(--text-main); text-decoration: none; font-weight: 500;">Routes</a>
+                <a href="#timings" class="admin-nav-link" style="display: block; padding: 0.75rem 1.5rem; color: var(--text-main); text-decoration: none; font-weight: 500;">Timings</a>
+                
+                <div style="padding: 1.5rem 1.5rem 0.5rem 1.5rem; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); letter-spacing: 0.05em; text-transform: uppercase;">Data Import</div>
+                <a href="#import" class="admin-nav-link" style="display: block; padding: 0.75rem 1.5rem; color: var(--text-main); text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 0.5rem;">
+                    📄 Import Timetable
+                </a>
+            </nav>
+            <div style="padding: 1.5rem; border-top: 1px solid var(--border-color);">
+                <div id="admin-user-email" style="font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; word-break: break-all;"></div>
+                <button id="reset-db-btn" class="btn" style="width: 100%; border: 1px solid var(--primary); color: var(--primary); padding: 0.5rem; margin-bottom: 0.5rem;">Reset Database</button>
+                <button id="logout-btn" class="btn" style="width: 100%; border: 1px solid var(--danger); color: var(--danger); padding: 0.5rem;">Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main style="flex: 1; padding: 2rem; overflow-y: auto; position: relative;">
+            <div id="admin-main-content">
+                <!-- Dynamic admin content injected here -->
+            </div>
+            
+            <!-- Editor Modal Container -->
+            <div id="admin-modal-container" class="hidden" style="position: absolute; top: 0; left: 0; right: 0; min-height: 100%; background: var(--bg-page); z-index: 50; padding: 2rem;"></div>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="hidden">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Application Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script src="js/config.js?v=13"></script>
+    <script src="js/auth.js?v=13"></script>
+    <script src="js/data.js?v=13"></script>
+    <script src="js/store.js?v=13"></script>
+    <script src="js/ocr.js?v=13"></script>
+    <script src="js/parser.js?v=13"></script>
+    <script src="js/import-ui.js?v=13"></script>
+    <script src="js/admin.js?v=13"></script>
+</body>
+
+</html>

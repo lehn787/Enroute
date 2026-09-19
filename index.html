@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script>
+    if (window.location.hash.includes('type=recovery') || window.location.hash.includes('access_token=')) {
+        window.location.href = window.location.origin + '/admin.html' + window.location.hash;
+    }
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EnRoute - Kochi City Bus Discovery & Timetable Platform</title>
+    <meta name="description" content="Find the right bus, the right route, and the right time across Kochi.">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="css/style.css?v=2">
+</head>
+
+<body>
+    <div id="app">
+        <!-- App Header -->
+        <header class="app-header">
+            <div class="header-container">
+                <a href="#" class="logo" id="nav-home">
+                    <span class="logo-text">EnRoute</span>
+                </a>
+                <nav class="main-nav">
+                    <a href="#user" class="nav-link active">Home</a>
+                    <a href="#search-bus" class="nav-link">Search by Bus</a>
+                    <a href="#search-stop" class="nav-link">Search by Stop</a>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main id="main-content">
+            <!-- Dynamic content injected here -->
+        </main>
+
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="hidden">
+            <div class="spinner"></div>
+        </div>
+        
+        <footer style="text-align: center; padding: 2rem; margin-top: 2rem; border-top: 1px solid var(--border-color);">
+            <p style="color: var(--text-muted); font-size: 0.875rem;">&copy; 2023 EnRoute Kochi</p>
+            <a href="admin.html" style="color: var(--text-muted); font-size: 0.75rem; text-decoration: none; margin-top: 0.5rem; display: inline-block;">Staff / Admin Login</a>
+        </footer>
+    </div>
+
+    <!-- Application Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js?v=13"></script>
+    <script src="js/auth.js?v=13"></script>
+    <script src="js/data.js?v=13"></script>
+    <script src="js/store.js?v=13"></script>
+    <script src="js/app.js?v=13"></script>
+</body>
+
+</html>

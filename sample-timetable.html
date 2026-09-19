@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sample Timetable for Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #f1f5f9;
+            margin: 0;
+        }
+        .timetable-card {
+            background: white;
+            padding: 3rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            width: 400px;
+        }
+        h1 {
+            text-align: center;
+            color: #1e3a8a;
+            margin-top: 0;
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            border-bottom: 3px solid #1e3a8a;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+        .row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.25rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e2e8f0;
+            font-weight: 600;
+        }
+        .row:last-child {
+            border-bottom: none;
+        }
+        .stop {
+            color: #334155;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .time {
+            color: #0f172a;
+            font-family: monospace;
+            font-size: 1.35rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="timetable-card">
+        <h1>ST. ANTONY</h1>
+        
+        <div class="row">
+            <span class="stop">Aluva</span>
+            <span class="time">08:15</span>
+        </div>
+        <div class="row">
+            <span class="stop">Edappally</span>
+            <span class="time">08:27</span>
+        </div>
+        <div class="row">
+            <span class="stop">Palarivattom</span>
+            <span class="time">08:36</span>
+        </div>
+        <div class="row">
+            <span class="stop">Kaloor</span>
+            <span class="time">08:47</span>
+        </div>
+        <div class="row">
+            <span class="stop">Menaka</span>
+            <span class="time">08:58</span>
+        </div>
+    </div>
+
+</body>
+</html>
