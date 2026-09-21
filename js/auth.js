@@ -1,6 +1,9 @@
 class AuthService {
     constructor() {
         this.supabase = null;
+        this.session = undefined;
+        this.authEvent = null;
+        this._onAuthCallback = null;
         this.init();
     }
 
@@ -15,6 +18,14 @@ class AuthService {
             window.ENV.SUPABASE_URL,
             window.ENV.SUPABASE_ANON_KEY
         );
+
+        this.supabase.auth.onAuthStateChange((event, session) => {
+            this.authEvent = event;
+            this.session = session;
+            if (this._onAuthCallback) {
+                this._onAuthCallback(event, session);
+            }
+        });
     }
 
     async signUp(email, password, fullName) {
@@ -82,7 +93,10 @@ class AuthService {
 
     onAuthStateChange(callback) {
         if (!this.supabase) return;
-        this.supabase.auth.onAuthStateChange(callback);
+        this._onAuthCallback = callback;
+        if (this.authEvent) {
+            callback(this.authEvent, this.session);
+        }
     }
 }
 

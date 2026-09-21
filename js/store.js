@@ -13,7 +13,8 @@ class Store {
         this.initialized = false;
     }
 
-    async initializeData() {
+    async initializeData(force = false) {
+        if (this.initialized && !force) return;
         if (!window.authService || !window.authService.supabase) {
             console.warn('Supabase not configured, cannot load data.');
             return;
@@ -25,32 +26,66 @@ class Store {
             const session = await window.authService.getSession();
             this.currentUserId = session ? session.user.id : null;
 
-            const [busesRes, stopsRes, routesRes, routeStopsRes, tripsRes, stopTimesRes, aliasesRes] = await Promise.all([
-                supabase.from('buses').select('*'),
-                supabase.from('stops').select('*'),
-                supabase.from('routes').select('*'),
-                supabase.from('route_stops').select('*'),
-                supabase.from('trips').select('*'),
-                supabase.from('stop_times').select('*'),
-                supabase.from('aliases').select('*')
-            ]);
+            if (!force) {
+                const cached = localStorage.getItem('enroute_data');
+                if (cached) {
+                    try {
+                        this.data = JSON.parse(cached);
+                        this.initialized = true;
+                        // Trigger background refresh without blocking
+                        this._backgroundRefresh(supabase);
+                        return;
+                    } catch(e) {
+                        console.warn('Failed to parse cached data, fetching fresh', e);
+                    }
+                }
+            }
 
-            if (busesRes.error) console.error("Error loading buses", busesRes.error);
-            if (stopsRes.error) console.error("Error loading stops", stopsRes.error);
-
-            this.data = {
-                buses: busesRes.data || [],
-                stops: stopsRes.data || [],
-                routes: routesRes.data || [],
-                route_stops: routeStopsRes.data || [],
-                trips: tripsRes.data || [],
-                stop_times: stopTimesRes.data || [],
-                aliases: aliasesRes.data || []
-            };
-            this.initialized = true;
+            await this._fetchFromSupabase(supabase);
         } catch (err) {
             console.error('Failed to initialize store data from Supabase', err);
         }
+    }
+
+    async _backgroundRefresh(supabase) {
+        try {
+            await this._fetchFromSupabase(supabase);
+        } catch(e) {
+            console.error('Background refresh failed', e);
+        }
+    }
+
+    async _fetchFromSupabase(supabase) {
+        const [busesRes, stopsRes, routesRes, routeStopsRes, tripsRes, stopTimesRes, aliasesRes] = await Promise.all([
+            supabase.from('buses').select('*'),
+            supabase.from('stops').select('*'),
+            supabase.from('routes').select('*'),
+            supabase.from('route_stops').select('*'),
+            supabase.from('trips').select('*'),
+            supabase.from('stop_times').select('*'),
+            supabase.from('aliases').select('*')
+        ]);
+
+        if (busesRes.error) console.error("Error loading buses", busesRes.error);
+        if (stopsRes.error) console.error("Error loading stops", stopsRes.error);
+
+        this.data = {
+            buses: busesRes.data || [],
+            stops: stopsRes.data || [],
+            routes: routesRes.data || [],
+            route_stops: routeStopsRes.data || [],
+            trips: tripsRes.data || [],
+            stop_times: stopTimesRes.data || [],
+            aliases: aliasesRes.data || []
+        };
+        
+        try {
+            localStorage.setItem('enroute_data', JSON.stringify(this.data));
+        } catch(e) {
+            console.warn('Could not cache data to localStorage (might be too large)', e);
+        }
+        
+        this.initialized = true;
     }
 
     // Getters (Public Data)
@@ -296,14 +331,14 @@ class Store {
     async deleteStop(stopId) {
         const { error } = await window.authService.supabase.from('stops').delete().eq('id', stopId);
         if (error) throw error;
-        await this.initializeData();
+        await this.initializeData(true);
     }
 
     async deleteMultipleStops(stopIds) {
         if (!stopIds || stopIds.length === 0) return;
         const { error } = await window.authService.supabase.from('stops').delete().in('id', stopIds);
         if (error) throw error;
-        await this.initializeData();
+        await this.initializeData(true);
     }
 
     async addRoute(busId, originId, destId, via = '') {
@@ -375,7 +410,7 @@ class Store {
             }).eq('id', routeId);
         }
 
-        await this.initializeData();
+        await this.initializeData(true);
         return true;
     }
 

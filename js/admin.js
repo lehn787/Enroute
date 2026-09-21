@@ -24,7 +24,7 @@ class AdminApp {
                     this._isRecovery = true;
                     history.replaceState(null, '', '#reset-password');
                     this.route();
-                } else if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+                } else if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
                     if (event === 'SIGNED_OUT') this._isRecovery = false;
                     this.route();
                 }
@@ -59,18 +59,22 @@ class AdminApp {
         document.querySelectorAll('.admin-nav-link').forEach(link => {
             link.addEventListener('click', closeDrawer);
         });
-        
-        this.route();
     }
 
-    async route() {
-        if (this._isRouting) return;
+    async route(eventSession = undefined) {
+        if (this._isRouting) {
+            this._routeQueued = true;
+            this._queuedSession = eventSession;
+            return;
+        }
         this._isRouting = true;
         try {
             let hash = window.location.hash || '#dashboard';
         
         let session = null;
-        if (window.authService) {
+        if (eventSession !== undefined) {
+            session = eventSession;
+        } else if (window.authService) {
             session = await window.authService.getSession();
         }
 
@@ -142,6 +146,12 @@ class AdminApp {
         }
         } finally {
             this._isRouting = false;
+            if (this._routeQueued) {
+                this._routeQueued = false;
+                const nextSession = this._queuedSession;
+                this._queuedSession = undefined;
+                this.route(nextSession);
+            }
         }
     }
 
@@ -1987,19 +1997,30 @@ class AdminApp {
         editorView.innerHTML = html;
         editorView.style.display = 'block';
 
-        document.getElementById('save-timings-btn').addEventListener('click', async () => {
-            const inputs = document.querySelectorAll('.timing-input');
-            for (const input of inputs) {
-                const tId = input.getAttribute('data-trip');
-                const sId = input.getAttribute('data-stop');
-                const newTime = input.value;
-                if (newTime) {
-                    await store.updateStopTime(tId, sId, newTime);
+        const saveBtn = document.getElementById('save-timings-btn');
+        saveBtn.addEventListener('click', async () => {
+            saveBtn.disabled = true;
+            const originalText = saveBtn.innerText;
+            saveBtn.innerText = 'SAVING...';
+            try {
+                const inputs = document.querySelectorAll('.timing-input');
+                const promises = [];
+                for (const input of inputs) {
+                    const tId = input.getAttribute('data-trip');
+                    const sId = input.getAttribute('data-stop');
+                    const newTime = input.value;
+                    if (newTime) {
+                        promises.push(store.updateStopTime(tId, sId, newTime));
+                    }
                 }
+                await Promise.all(promises);
+                const msg = document.getElementById('save-msg');
+                msg.classList.remove('hidden');
+                setTimeout(() => msg.classList.add('hidden'), 3000);
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerText = originalText;
             }
-            const msg = document.getElementById('save-msg');
-            msg.classList.remove('hidden');
-            setTimeout(() => msg.classList.add('hidden'), 3000);
         });
     }
 
