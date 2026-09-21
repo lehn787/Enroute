@@ -7,7 +7,8 @@ class Store {
             route_stops: [],
             trips: [],
             stop_times: [],
-            aliases: []
+            aliases: [],
+            activities: []
         };
         this.currentUserId = null;
         this.initialized = false;
@@ -56,14 +57,16 @@ class Store {
     }
 
     async _fetchFromSupabase(supabase) {
-        const [busesRes, stopsRes, routesRes, routeStopsRes, tripsRes, stopTimesRes, aliasesRes] = await Promise.all([
+        const [busesRes, stopsRes, routesRes, routeStopsRes, tripsRes, stopTimesRes, aliasesRes, activitiesRes] = await Promise.all([
             supabase.from('buses').select('*'),
             supabase.from('stops').select('*'),
             supabase.from('routes').select('*'),
             supabase.from('route_stops').select('*'),
             supabase.from('trips').select('*'),
             supabase.from('stop_times').select('*'),
-            supabase.from('aliases').select('*')
+            supabase.from('aliases').select('*'),
+            // Fetch activities safely, it might fail if the table doesn't exist yet
+            supabase.from('admin_activity').select('*').order('created_at', { ascending: false }).limit(50).then(res => res).catch(() => ({ data: [], error: null }))
         ]);
 
         if (busesRes.error) console.error("Error loading buses", busesRes.error);
@@ -76,7 +79,8 @@ class Store {
             route_stops: routeStopsRes.data || [],
             trips: tripsRes.data || [],
             stop_times: stopTimesRes.data || [],
-            aliases: aliasesRes.data || []
+            aliases: aliasesRes.data || [],
+            activities: activitiesRes && activitiesRes.data ? activitiesRes.data : []
         };
         
         try {
@@ -96,6 +100,61 @@ class Store {
     getTrips() { return this.data.trips; }
     getStopTimes() { return this.data.stop_times; }
     getAliases() { return this.data.aliases; }
+    getActivities() { return this.data.activities || []; }
+
+    async logActivity(item_name, action_details, action_type = 'success') {
+        if (!this.currentUserId || !window.authService.supabase) return;
+        
+        const newActivity = {
+            item_name,
+            action_details,
+            action_type,
+            created_by: this.currentUserId,
+            created_at: new Date().toISOString()
+        };
+        
+        try {
+            const { data, error } = await window.authService.supabase
+                .from('admin_activity')
+                .insert([newActivity])
+                .select();
+                
+            if (!error && data && data.length > 0) {
+                if (!this.data.activities) this.data.activities = [];
+                this.data.activities.unshift(data[0]);
+                if (this.data.activities.length > 50) this.data.activities.pop();
+                
+                // Re-render dashboard if active to show reactive updates
+                if (window.location.hash === '#dashboard' && window.adminApp) {
+                    window.adminApp.renderDashboard();
+                }
+            }
+        } catch(e) {
+            console.warn('Failed to log activity', e);
+        }
+    }
+
+    async clearActivities() {
+        if (!this.currentUserId || !window.authService.supabase) return;
+        
+        try {
+            const { error } = await window.authService.supabase
+                .from('admin_activity')
+                .delete()
+                .eq('created_by', this.currentUserId);
+                
+            if (error) throw error;
+            
+            this.data.activities = [];
+            
+            if (window.location.hash === '#dashboard' && window.adminApp) {
+                window.adminApp.renderDashboard();
+            }
+        } catch(e) {
+            console.error('Failed to clear activities', e);
+            alert('Failed to clear recent updates history.');
+        }
+    }
 
     // Getters (Admin Private Data)
     getAdminBuses() { return this.data.buses.filter(b => b.created_by === this.currentUserId); }
@@ -239,6 +298,7 @@ class Store {
         if (error) throw error;
         
         this.data.buses.push(newBus);
+        this.logActivity(name, `added to fleet`, 'success');
         return id;
     }
 
@@ -263,6 +323,9 @@ class Store {
     async deleteBus(busId) {
         if (!this.currentUserId) throw new Error("Not authenticated");
         
+        const bus = this.getBusById(busId);
+        const busName = bus ? bus.name : 'Unknown Bus';
+        
         const { error } = await window.authService.supabase.from('buses').delete().eq('id', busId);
         if (error) throw error;
 
@@ -275,6 +338,17 @@ class Store {
         const tripIds = this.data.trips.filter(t => routeIds.includes(t.route_id)).map(t => t.id);
         this.data.trips = this.data.trips.filter(t => !routeIds.includes(t.route_id));
         this.data.stop_times = this.data.stop_times.filter(st => !tripIds.includes(st.trip_id));
+        
+        this.logActivity(busName, `deleted from fleet`, 'danger');
+    }
+
+    async deleteMultipleBuses(busIds) {
+        if (!busIds || busIds.length === 0) return;
+        if (!this.currentUserId) throw new Error("Not authenticated");
+        const { error } = await window.authService.supabase.from('buses').delete().in('id', busIds);
+        if (error) throw error;
+        this.data.buses = this.data.buses.filter(b => !busIds.includes(b.id));
+        this.logActivity(`${busIds.length} buses`, `deleted`, 'danger');
     }
 
     async updateBus(id, updates) {
@@ -282,7 +356,10 @@ class Store {
         if (error) throw error;
         
         const bus = this.getBusById(id);
-        if (bus) Object.assign(bus, updates);
+        if (bus) {
+            Object.assign(bus, updates);
+            this.logActivity(bus.name, `details updated`, 'info');
+        }
     }
 
     async addStop(name, area) {
@@ -293,6 +370,7 @@ class Store {
         if (error) throw error;
         
         this.data.stops.push(newStop);
+        this.logActivity(name, `added to stops`, 'success');
         return id;
     }
 
@@ -301,7 +379,10 @@ class Store {
         if (error) throw error;
         
         const stop = this.getStopById(id);
-        if (stop) Object.assign(stop, updates);
+        if (stop) {
+            Object.assign(stop, updates);
+            this.logActivity(stop.name, `stop details updated`, 'info');
+        }
     }
 
     async updateStopAliases(stopId, newAliasList) {
@@ -329,16 +410,23 @@ class Store {
     }
 
     async deleteStop(stopId) {
+        const stop = this.getStopById(stopId);
+        const stopName = stop ? stop.name : 'Unknown Stop';
+        
         const { error } = await window.authService.supabase.from('stops').delete().eq('id', stopId);
         if (error) throw error;
-        await this.initializeData(true);
+        
+        this.data.stops = this.data.stops.filter(s => s.id !== stopId);
+        this.logActivity(stopName, `deleted`, 'danger');
     }
 
     async deleteMultipleStops(stopIds) {
         if (!stopIds || stopIds.length === 0) return;
         const { error } = await window.authService.supabase.from('stops').delete().in('id', stopIds);
         if (error) throw error;
-        await this.initializeData(true);
+        
+        this.data.stops = this.data.stops.filter(s => !stopIds.includes(s.id));
+        this.logActivity(`${stopIds.length} stops`, `deleted`, 'danger');
     }
 
     async addRoute(busId, originId, destId, via = '') {
@@ -358,6 +446,11 @@ class Store {
         if (error) throw error;
         
         this.data.routes.push(newRoute);
+        
+        const bus = this.getBusById(busId);
+        const busName = bus ? bus.name : 'Unknown Bus';
+        this.logActivity(`${busName} Route`, `added`, 'success');
+        
         return id;
     }
 
@@ -408,6 +501,10 @@ class Store {
                 destination_stop_id: destId,
                 via_description: via
             }).eq('id', routeId);
+            
+            const bus = this.getBusById(route.bus_id);
+            const busName = bus ? bus.name : 'Unknown Bus';
+            this.logActivity(`${busName} Route`, `stops updated`, 'info');
         }
 
         await this.initializeData(true);
@@ -429,6 +526,14 @@ class Store {
         if (error) throw error;
         
         this.data.trips.push(newTrip);
+        
+        const route = this.getRouteById(routeId);
+        if (route) {
+            const bus = this.getBusById(route.bus_id);
+            const busName = bus ? bus.name : 'Unknown Bus';
+            this.logActivity(`${busName} trip`, `added`, 'success');
+        }
+        
         return id;
     }
 
@@ -446,6 +551,16 @@ class Store {
         if (error) throw error;
         
         this.data.stop_times.push(...newStopTimes);
+        
+        const trip = this.getTrips().find(t => t.id === tripId);
+        if (trip) {
+            const route = this.getRouteById(trip.route_id);
+            if (route) {
+                const bus = this.getBusById(route.bus_id);
+                const busName = bus ? bus.name : 'Unknown Bus';
+                this.logActivity(`${busName} timings`, `added or updated`, 'success');
+            }
+        }
     }
 }
 

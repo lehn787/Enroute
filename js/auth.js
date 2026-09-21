@@ -64,6 +64,7 @@ class AuthService {
         const { data, error } = await this.supabase.auth.getSession();
         if (error) {
             console.error('Error fetching session:', error.message);
+            if (window.toast) window.toast('Session error: ' + error.message, 'error');
             return null;
         }
         return data.session;

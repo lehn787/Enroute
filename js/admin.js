@@ -26,7 +26,7 @@ class AdminApp {
                     this.route();
                 } else if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
                     if (event === 'SIGNED_OUT') this._isRecovery = false;
-                    this.route();
+                    this.route(session);
                 }
             });
         }
@@ -41,6 +41,7 @@ class AdminApp {
             if (sidebar && overlay) {
                 sidebar.classList.toggle('open');
                 overlay.classList.toggle('open');
+                document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
             }
         };
         
@@ -48,6 +49,7 @@ class AdminApp {
             if (sidebar && overlay) {
                 sidebar.classList.remove('open');
                 overlay.classList.remove('open');
+                document.body.style.overflow = '';
             }
         };
         
@@ -172,31 +174,34 @@ class AdminApp {
 
     renderLogin() {
         const html = `
-            <div class="card" style="width: 100%; max-width: 400px; padding: 2rem; background: var(--bg-card); border-radius: var(--border-radius); box-shadow: var(--shadow-md);">
-                <div style="text-align: center; margin-bottom: 2rem; display: flex; flex-direction: column; align-items: center;">
-                    <img src="img/logo.png" alt="EnRoute Logo" style="height: 62px; width: auto; margin: 0 auto 0.25rem auto; display: block;">
-                    <h2 style="color: var(--primary); font-weight: 800; font-size: 28px; margin: 0; line-height: 1; letter-spacing: -0.03em;">EnRoute</h2>
-                    <span style="font-size: 13px; font-weight: 700; color: var(--primary-dark); text-transform: uppercase; letter-spacing: 1px; line-height: 1; margin: 2px 0 16px 0;">ADMIN</span>
-                    <p style="color: var(--text-muted); font-size: 14px; font-weight: 500; margin: 0;">Manage Kochi's bus routes, stops and schedules.</p>
+            <div class="auth-card">
+                <div style="text-align: center; margin-bottom: 2.5rem; display: flex; flex-direction: column; align-items: center;">
+                    <img src="img/logo.png" alt="EnRoute Logo" style="height: 56px; width: auto; margin: 0 auto 0.5rem auto; display: block;">
+                    <h2 style="color: var(--primary); font-weight: 800; font-size: 1.75rem; margin: 0; line-height: 1; letter-spacing: -0.03em;">EnRoute</h2>
+                    <span style="font-size: 0.75rem; font-weight: 800; color: var(--primary-dark); text-transform: uppercase; letter-spacing: 0.1em; line-height: 1; margin: 4px 0 16px 0;">ADMIN</span>
+                    <p style="color: var(--text-muted); font-size: 0.875rem; font-weight: 500; margin: 0;">Manage Kochi's bus routes, stops and schedules.</p>
                 </div>
-                <div id="auth-error" class="hidden" style="background: #fee2e2; color: #b91c1c; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.875rem;"></div>
+                <div id="auth-error" class="hidden" style="background: #fef2f2; border: 1px solid #fca5a5; color: #b91c1c; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.875rem; font-weight: 500; display: flex; align-items: flex-start; gap: 0.5rem;">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-top: 2px; flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    <span id="auth-error-msg"></span>
+                </div>
                 <form id="login-form">
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-main);">Email</label>
-                        <input type="email" id="login-email" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px;">
+                    <div class="form-group" style="margin-bottom: 1.25rem;">
+                        <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-main);">Email Address</label>
+                        <input type="email" id="login-email" required class="form-control" placeholder="admin@enroute.com" style="width: 100%;">
                     </div>
-                    <div class="form-group" style="margin-bottom: 1.5rem;">
-                        <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-main);">Password</label>
-                        <input type="password" id="login-password" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px;">
+                    <div class="form-group" style="margin-bottom: 1.75rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
+                            <label style="font-size: 0.875rem; font-weight: 600; color: var(--text-main);">Password</label>
+                            <a href="#forgot-password" style="font-size: 0.75rem; font-weight: 600; color: var(--primary); text-decoration: none;">Forgot password?</a>
+                        </div>
+                        <input type="password" id="login-password" required class="form-control" placeholder="••••••••" style="width: 100%;">
                     </div>
-                    <button type="submit" id="login-btn" class="btn btn-primary" style="width: 100%; margin-bottom: 1rem;">SIGN IN</button>
+                    <button type="submit" id="login-btn" class="btn btn-primary" style="width: 100%; padding: 0.75rem; border-radius: 8px; font-weight: 700; margin-bottom: 1.5rem;">Sign In</button>
                 </form>
-                <div style="text-align: center; font-size: 0.875rem;">
+                <div style="text-align: center; font-size: 0.875rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
                     <span style="color: var(--text-muted);">Don't have an admin account?</span>
-                    <a href="#signup" style="color: var(--primary); font-weight: 600; text-decoration: none; margin-left: 0.5rem;">Create Admin Account</a>
-                </div>
-                <div style="text-align: center; font-size: 0.875rem; margin-top: 1rem;">
-                    <a href="#forgot-password" style="color: var(--text-muted); text-decoration: none;">Forgot password?</a>
+                    <a href="#signup" style="color: var(--primary); font-weight: 700; text-decoration: none; margin-left: 0.5rem;">Create one</a>
                 </div>
             </div>
         `;
@@ -216,9 +221,9 @@ class AdminApp {
             const { data, error } = await window.authService.signIn(email, password);
             
             if (error) {
-                errDiv.textContent = error.message;
+                document.getElementById('auth-error-msg').textContent = error.message;
                 errDiv.classList.remove('hidden');
-                btn.textContent = 'SIGN IN';
+                btn.textContent = 'Sign In';
                 btn.disabled = false;
             } else {
                 window.location.hash = '#dashboard';
@@ -228,35 +233,37 @@ class AdminApp {
 
     renderSignup() {
         const html = `
-            <div class="card" style="width: 100%; max-width: 400px; padding: 2rem; background: var(--bg-card); border-radius: var(--border-radius); box-shadow: var(--shadow-md);">
-                <div style="text-align: center; margin-bottom: 2rem;">
-                    <img src="img/logo.png" alt="EnRoute Logo" style="height: 48px; width: auto; margin: 0 auto 1rem auto; display: block;">
-                    <h2 style="color: var(--primary); font-weight: 800; font-size: 1.5rem; margin-bottom: 0.5rem;">Create Admin Account</h2>
-                    <p style="color: var(--text-muted); font-size: 0.875rem;">Join the EnRoute management team.</p>
+            <div class="auth-card">
+                <div style="text-align: center; margin-bottom: 2.5rem;">
+                    <h2 style="color: var(--text-main); font-weight: 800; font-size: 1.75rem; margin-bottom: 0.5rem; letter-spacing: -0.02em;">Create Admin Account</h2>
+                    <p style="color: var(--text-muted); font-size: 0.875rem; font-weight: 500;">Join the EnRoute management team.</p>
                 </div>
-                <div id="auth-error" class="hidden" style="background: #fee2e2; color: #b91c1c; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.875rem;"></div>
+                <div id="auth-error" class="hidden" style="background: #fef2f2; border: 1px solid #fca5a5; color: #b91c1c; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.875rem; font-weight: 500; display: flex; align-items: flex-start; gap: 0.5rem;">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-top: 2px; flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    <span id="auth-error-msg"></span>
+                </div>
                 <form id="signup-form">
-                    <div class="form-group" style="margin-bottom: 1rem;">
+                    <div class="form-group" style="margin-bottom: 1.25rem;">
                         <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-main);">Full Name</label>
-                        <input type="text" id="signup-name" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px;">
+                        <input type="text" id="signup-name" required class="form-control" placeholder="Jane Doe" style="width: 100%;">
                     </div>
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-main);">Email</label>
-                        <input type="email" id="signup-email" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px;">
+                    <div class="form-group" style="margin-bottom: 1.25rem;">
+                        <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-main);">Email Address</label>
+                        <input type="email" id="signup-email" required class="form-control" placeholder="jane@enroute.com" style="width: 100%;">
                     </div>
-                    <div class="form-group" style="margin-bottom: 1rem;">
+                    <div class="form-group" style="margin-bottom: 1.25rem;">
                         <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-main);">Password</label>
-                        <input type="password" id="signup-password" required minlength="8" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px;">
+                        <input type="password" id="signup-password" required minlength="8" class="form-control" placeholder="••••••••" style="width: 100%;">
                     </div>
-                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <div class="form-group" style="margin-bottom: 2rem;">
                         <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-main);">Confirm Password</label>
-                        <input type="password" id="signup-confirm" required minlength="8" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px;">
+                        <input type="password" id="signup-confirm" required minlength="8" class="form-control" placeholder="••••••••" style="width: 100%;">
                     </div>
-                    <button type="submit" id="signup-btn" class="btn btn-primary" style="width: 100%; margin-bottom: 1rem;">CREATE ADMIN ACCOUNT</button>
+                    <button type="submit" id="signup-btn" class="btn btn-primary" style="width: 100%; padding: 0.75rem; border-radius: 8px; font-weight: 700; margin-bottom: 1.5rem;">Create Account</button>
                 </form>
-                <div style="text-align: center; font-size: 0.875rem;">
+                <div style="text-align: center; font-size: 0.875rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
                     <span style="color: var(--text-muted);">Already have an account?</span>
-                    <a href="#login" style="color: var(--primary); font-weight: 600; text-decoration: none; margin-left: 0.5rem;">Sign In</a>
+                    <a href="#login" style="color: var(--primary); font-weight: 700; text-decoration: none; margin-left: 0.5rem;">Sign In</a>
                 </div>
             </div>
         `;
@@ -274,7 +281,7 @@ class AdminApp {
             errDiv.classList.add('hidden');
 
             if (password !== confirm) {
-                errDiv.textContent = 'Passwords do not match.';
+                document.getElementById('auth-error-msg').textContent = 'Passwords do not match.';
                 errDiv.classList.remove('hidden');
                 return;
             }
@@ -285,9 +292,9 @@ class AdminApp {
             const { data, error } = await window.authService.signUp(email, password, name);
             
             if (error) {
-                errDiv.textContent = error.message;
+                document.getElementById('auth-error-msg').textContent = error.message;
                 errDiv.classList.remove('hidden');
-                btn.textContent = 'CREATE ADMIN ACCOUNT';
+                btn.textContent = 'Create Account';
                 btn.disabled = false;
             } else {
                 window.location.hash = '#dashboard';
@@ -297,35 +304,42 @@ class AdminApp {
 
     renderForgotPassword() {
         const html = `
-            <div class="card" style="width: 100%; max-width: 400px; padding: 2rem; background: var(--bg-card); border-radius: var(--border-radius); box-shadow: var(--shadow-md);">
+            <div class="auth-card">
                 <div id="forgot-form-container">
-                    <div style="text-align: center; margin-bottom: 2rem;">
-                        <h2 style="color: var(--primary); font-weight: 800; font-size: 1.5rem; margin-bottom: 0.5rem;">EnRoute Admin</h2>
-                        <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem;">Reset your password</h3>
-                        <p style="color: var(--text-muted); font-size: 0.875rem;">Enter the email address associated with your admin account and we'll send you a password reset link.</p>
-                    </div>
-                    <div id="auth-error" class="hidden" style="background: #fee2e2; color: #b91c1c; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.875rem;"></div>
-                    <form id="forgot-form">
-                        <div class="form-group" style="margin-bottom: 1.5rem;">
-                            <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-main);">Email</label>
-                            <input type="email" id="forgot-email" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px;">
+                    <div style="text-align: center; margin-bottom: 2.5rem;">
+                        <div style="width: 48px; height: 48px; background: #e0e7ff; color: #4f46e5; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                         </div>
-                        <button type="submit" id="forgot-btn" class="btn btn-primary" style="width: 100%; margin-bottom: 1.5rem;">SEND RESET LINK</button>
+                        <h2 style="color: var(--text-main); font-weight: 800; font-size: 1.5rem; margin-bottom: 0.5rem; letter-spacing: -0.02em;">Reset your password</h2>
+                        <p style="color: var(--text-muted); font-size: 0.875rem; line-height: 1.5;">Enter the email address associated with your account and we'll send you a password reset link.</p>
+                    </div>
+                    <div id="auth-error" class="hidden" style="background: #fef2f2; border: 1px solid #fca5a5; color: #b91c1c; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.875rem; font-weight: 500; display: flex; align-items: flex-start; gap: 0.5rem;">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-top: 2px; flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                        <span id="auth-error-msg"></span>
+                    </div>
+                    <form id="forgot-form">
+                        <div class="form-group" style="margin-bottom: 2rem;">
+                            <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-main);">Email Address</label>
+                            <input type="email" id="forgot-email" required class="form-control" placeholder="admin@enroute.com" style="width: 100%;">
+                        </div>
+                        <button type="submit" id="forgot-btn" class="btn btn-primary" style="width: 100%; padding: 0.75rem; border-radius: 8px; font-weight: 700; margin-bottom: 1.5rem;">Send Reset Link</button>
                     </form>
-                    <div style="text-align: center; font-size: 0.875rem;">
+                    <div style="text-align: center; font-size: 0.875rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
                         <span style="color: var(--text-muted);">Remember your password?</span>
-                        <a href="#login" style="color: var(--primary); font-weight: 600; text-decoration: none; margin-left: 0.5rem;">Back to Sign In</a>
+                        <a href="#login" style="color: var(--primary); font-weight: 700; text-decoration: none; margin-left: 0.5rem;">Back to Sign In</a>
                     </div>
                 </div>
                 <div id="forgot-success-container" class="hidden" style="text-align: center;">
-                    <div style="width: 64px; height: 64px; background: #dcfce7; color: #166534; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1.5rem;">✓</div>
-                    <h2 style="font-weight: 800; font-size: 1.5rem; margin-bottom: 0.5rem;">Check your email</h2>
-                    <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">If an account exists for this email address, we've sent you a password reset link.</p>
-                    <p id="forgot-success-email" style="font-weight: 600; font-size: 0.95rem; margin-bottom: 2rem;"></p>
-                    <a href="#login" class="btn" style="width: 100%; border: 1px solid var(--border-color); margin-bottom: 1.5rem;">BACK TO SIGN IN</a>
+                    <div style="width: 64px; height: 64px; background: #dcfce7; color: #166534; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                        <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <h2 style="font-weight: 800; font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--text-main);">Check your email</h2>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1rem; line-height: 1.5;">If an account exists for this email address, we've sent you a password reset link.</p>
+                    <div id="forgot-success-email" style="font-weight: 700; font-size: 0.95rem; margin-bottom: 2rem; color: var(--text-main); padding: 0.75rem; background: var(--bg-page); border-radius: 8px; border: 1px solid var(--border-color);"></div>
+                    <a href="#login" class="btn btn-outline-primary" style="width: 100%; padding: 0.75rem; border-radius: 8px; font-weight: 600; margin-bottom: 1.5rem;">Back to Sign In</a>
                     <div style="font-size: 0.875rem;">
                         <span style="color: var(--text-muted);">Didn't receive the email?</span>
-                        <a href="#forgot-password" onclick="document.getElementById('forgot-success-container').classList.add('hidden'); document.getElementById('forgot-form-container').classList.remove('hidden'); return false;" style="color: var(--primary); font-weight: 600; text-decoration: none; margin-left: 0.5rem;">Try Again</a>
+                        <a href="#forgot-password" onclick="document.getElementById('forgot-success-container').classList.add('hidden'); document.getElementById('forgot-form-container').classList.remove('hidden'); return false;" style="color: var(--primary); font-weight: 700; text-decoration: none; margin-left: 0.5rem;">Try Again</a>
                     </div>
                 </div>
             </div>
@@ -345,9 +359,9 @@ class AdminApp {
             const { data, error } = await window.authService.resetPasswordForEmail(email);
             
             if (error) {
-                errDiv.textContent = error.message;
+                document.getElementById('auth-error-msg').textContent = error.message;
                 errDiv.classList.remove('hidden');
-                btn.textContent = 'SEND RESET LINK';
+                btn.textContent = 'Send Reset Link';
                 btn.disabled = false;
             } else {
                 document.getElementById('forgot-form-container').classList.add('hidden');
@@ -359,32 +373,39 @@ class AdminApp {
 
     renderResetPassword() {
         const html = `
-            <div class="card" style="width: 100%; max-width: 400px; padding: 2rem; background: var(--bg-card); border-radius: var(--border-radius); box-shadow: var(--shadow-md);">
+            <div class="auth-card">
                 <div id="reset-form-container">
-                    <div style="text-align: center; margin-bottom: 2rem;">
-                        <h2 style="color: var(--primary); font-weight: 800; font-size: 1.5rem; margin-bottom: 0.5rem;">EnRoute Admin</h2>
-                        <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem;">Create a new password</h3>
-                        <p style="color: var(--text-muted); font-size: 0.875rem;">Enter a new password for your admin account.</p>
+                    <div style="text-align: center; margin-bottom: 2.5rem;">
+                        <div style="width: 48px; height: 48px; background: #e0e7ff; color: #4f46e5; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.778-7.778zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
+                        </div>
+                        <h2 style="color: var(--text-main); font-weight: 800; font-size: 1.5rem; margin-bottom: 0.5rem; letter-spacing: -0.02em;">Set new password</h2>
+                        <p style="color: var(--text-muted); font-size: 0.875rem; line-height: 1.5;">Please enter your new password below.</p>
                     </div>
-                    <div id="auth-error" class="hidden" style="background: #fee2e2; color: #b91c1c; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.875rem;"></div>
+                    <div id="auth-error" class="hidden" style="background: #fef2f2; border: 1px solid #fca5a5; color: #b91c1c; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.875rem; font-weight: 500; display: flex; align-items: flex-start; gap: 0.5rem;">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-top: 2px; flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                        <span id="auth-error-msg"></span>
+                    </div>
                     <form id="reset-form">
-                        <div class="form-group" style="margin-bottom: 1rem;">
+                        <div class="form-group" style="margin-bottom: 1.25rem;">
                             <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-main);">New Password</label>
-                            <input type="password" id="reset-password" required minlength="8" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px;">
+                            <input type="password" id="reset-password" required minlength="8" class="form-control" placeholder="••••••••" style="width: 100%;">
                         </div>
-                        <div class="form-group" style="margin-bottom: 1.5rem;">
+                        <div class="form-group" style="margin-bottom: 2rem;">
                             <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-main);">Confirm New Password</label>
-                            <input type="password" id="reset-confirm" required minlength="8" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px;">
+                            <input type="password" id="reset-confirm" required minlength="8" class="form-control" placeholder="••••••••" style="width: 100%;">
                         </div>
-                        <button type="submit" id="reset-btn" class="btn btn-primary" style="width: 100%;">UPDATE PASSWORD</button>
+                        <button type="submit" id="reset-btn" class="btn btn-primary" style="width: 100%; padding: 0.75rem; border-radius: 8px; font-weight: 700;">Update Password</button>
                     </form>
                 </div>
                 
                 <div id="reset-success-container" class="hidden" style="text-align: center;">
-                    <div style="width: 64px; height: 64px; background: #dcfce7; color: #166534; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1.5rem;">✓</div>
-                    <h2 style="font-weight: 800; font-size: 1.5rem; margin-bottom: 0.5rem;">Password updated successfully</h2>
-                    <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 2rem;">Your admin password has been changed.</p>
-                    <a href="#login" class="btn btn-primary" style="width: 100%; margin-bottom: 1.5rem;">SIGN IN</a>
+                    <div style="width: 64px; height: 64px; background: #dcfce7; color: #166534; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                        <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <h2 style="font-weight: 800; font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--text-main);">Password updated</h2>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem; line-height: 1.5;">Your admin password has been changed successfully.</p>
+                    <a href="#login" class="btn btn-primary" style="width: 100%; padding: 0.75rem; border-radius: 8px; font-weight: 700;">Sign In</a>
                 </div>
             </div>
         `;
@@ -400,7 +421,7 @@ class AdminApp {
             errDiv.classList.add('hidden');
 
             if (password !== confirm) {
-                errDiv.textContent = 'Passwords do not match.';
+                document.getElementById('auth-error-msg').textContent = 'Passwords do not match.';
                 errDiv.classList.remove('hidden');
                 return;
             }
@@ -416,9 +437,9 @@ class AdminApp {
                     this._isRecovery = false;
                     this.renderResetExpired();
                 } else {
-                    errDiv.textContent = error.message;
+                    document.getElementById('auth-error-msg').textContent = error.message;
                     errDiv.classList.remove('hidden');
-                    btn.textContent = 'UPDATE PASSWORD';
+                    btn.textContent = 'Update Password';
                     btn.disabled = false;
                 }
             } else {
@@ -431,11 +452,13 @@ class AdminApp {
 
     renderResetExpired() {
         const html = `
-            <div class="card" style="width: 100%; max-width: 400px; padding: 2.5rem 2rem; background: var(--bg-card); border-radius: var(--border-radius); box-shadow: var(--shadow-md); text-align: center;">
-                <div style="width: 64px; height: 64px; background: #fee2e2; color: #b91c1c; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1.5rem;">!</div>
-                <h2 style="font-weight: 800; font-size: 1.5rem; margin-bottom: 0.5rem;">Password reset link expired</h2>
-                <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 2rem;">This password reset link is no longer valid. Please request a new one.</p>
-                <a href="#forgot-password" class="btn btn-primary" style="width: 100%;">REQUEST NEW RESET LINK</a>
+            <div class="auth-card" style="text-align: center;">
+                <div style="width: 64px; height: 64px; background: #fef2f2; color: #b91c1c; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                    <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                </div>
+                <h2 style="font-weight: 800; font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--text-main); letter-spacing: -0.02em;">Link Expired</h2>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2.5rem; line-height: 1.5;">This password reset link is no longer valid or has already been used. Please request a new one.</p>
+                <a href="#forgot-password" class="btn btn-primary" style="width: 100%; padding: 0.75rem; border-radius: 8px; font-weight: 700;">Request New Link</a>
             </div>
         `;
         this.authContainer.innerHTML = html;
@@ -460,53 +483,157 @@ class AdminApp {
 
     // --- DASHBOARD ---
     
+    timeAgo(dateString) {
+        if (!dateString) return "Unknown time";
+        
+        let safeDateString = dateString.replace(' ', 'T');
+        if (!safeDateString.includes('Z') && !safeDateString.includes('+') && !safeDateString.includes('-') && safeDateString.length <= 23) {
+            safeDateString += 'Z';
+        }
+        
+        const date = new Date(safeDateString);
+        const seconds = Math.floor((new Date() - date) / 1000);
+        
+        if (seconds < 60) return "Just now";
+        
+        let interval = seconds / 31536000;
+        if (interval >= 1) return Math.floor(interval) + " year" + (Math.floor(interval) > 1 ? "s" : "") + " ago";
+        interval = seconds / 2592000;
+        if (interval >= 1) return Math.floor(interval) + " month" + (Math.floor(interval) > 1 ? "s" : "") + " ago";
+        interval = seconds / 86400;
+        if (interval >= 1) {
+            const days = Math.floor(interval);
+            return days === 1 ? "Yesterday" : days + " days ago";
+        }
+        interval = seconds / 3600;
+        if (interval >= 1) return Math.floor(interval) + " hour" + (Math.floor(interval) > 1 ? "s" : "") + " ago";
+        interval = seconds / 60;
+        if (interval >= 1) return Math.floor(interval) + " minute" + (Math.floor(interval) > 1 ? "s" : "") + " ago";
+        
+        return "Just now";
+    }
+
     renderDashboard() {
-        const html = `
-            <div style="max-width: 1000px; margin: 0 auto;">
-                <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 2rem;">Dashboard Overview</h2>
+        // Generate Dynamic Activities HTML
+        const activities = store.getActivities();
+        let activitiesHtml = '';
+        
+        if (!activities || activities.length === 0) {
+            activitiesHtml = `
+                <div style="padding: 3rem 2rem; text-align: center; color: var(--text-muted);">
+                    <svg style="width: 48px; height: 48px; margin: 0 auto 1rem auto; opacity: 0.5;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <div style="font-weight: 600; font-size: 1.1rem; color: var(--text-main); margin-bottom: 0.25rem;">No recent updates yet.</div>
+                    <div style="font-size: 0.875rem;">Changes made in the admin portal will appear here.</div>
+                </div>
+            `;
+        } else {
+            activitiesHtml = activities.map((act, i) => {
+                const colorMap = {
+                    'success': 'var(--success)',
+                    'danger': '#ef4444',
+                    'info': '#3b82f6',
+                    'warning': '#f59e0b'
+                };
+                const dotColor = colorMap[act.action_type] || colorMap['success'];
+                const isLast = i === activities.length - 1;
                 
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
-                    <div style="background: var(--bg-card); padding: 1.5rem; border-radius: 8px; box-shadow: var(--shadow-sm); border-left: 4px solid var(--primary);">
-                        <div style="font-size: 0.875rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.5rem;">TOTAL BUSES</div>
-                        <div style="font-size: 2.5rem; font-weight: 800; color: var(--text-main);">${store.getAdminBuses().length}</div>
+                return `
+                    <div style="padding: 1rem 1.5rem; ${isLast ? '' : 'border-bottom: 1px solid var(--border-color);'} display: flex; align-items: center; justify-content: space-between; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='var(--bg-page)'" onmouseout="this.style.backgroundColor='transparent'">
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 10px; height: 10px; border-radius: 50%; background: ${dotColor}; margin-right: 1.25rem; box-shadow: 0 0 0 3px ${dotColor}20;"></div>
+                            <div>
+                                <div style="font-weight: 700; color: var(--text-main); margin-bottom: 0.1rem;">${act.item_name}</div>
+                                <div style="font-size: 0.875rem; color: var(--text-muted);">${act.action_details}</div>
+                            </div>
+                        </div>
+                        <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">
+                            ${this.timeAgo(act.created_at)}
+                        </div>
                     </div>
-                    <div style="background: var(--bg-card); padding: 1.5rem; border-radius: 8px; box-shadow: var(--shadow-sm); border-left: 4px solid var(--primary);">
-                        <div style="font-size: 0.875rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.5rem;">TOTAL STOPS</div>
-                        <div style="font-size: 2.5rem; font-weight: 800; color: var(--text-main);">${store.getStops().length}</div>
+                `;
+            }).join('');
+        }
+
+        const html = `
+            <style>
+                .dashboard-card {
+                    background: var(--bg-card); 
+                    padding: 1.5rem; 
+                    border-radius: 12px; 
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); 
+                    border: 1px solid var(--border-color);
+                    transition: transform 0.2s ease, box-shadow 0.2s ease;
+                    display: flex;
+                    align-items: center;
+                    gap: 1.25rem;
+                }
+                .dashboard-card:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+                }
+                .dashboard-icon {
+                    width: 48px;
+                    height: 48px;
+                    border-radius: 10px;
+                    background: var(--primary);
+                    color: white;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+            </style>
+            <div style="max-width: 1100px; margin: 0 auto; padding-bottom: 2rem;">
+                <h2 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 2rem; color: var(--text-main); letter-spacing: -0.02em;">Dashboard Overview</h2>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+                    <div class="dashboard-card">
+                        <div class="dashboard-icon">
+                            <svg style="width:24px;height:24px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1"></path><path d="M4 16V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10"></path><path d="M8 19v2"></path><path d="M16 19v2"></path><path d="M4 11h16"></path><circle cx="8" cy="15" r="1"></circle><circle cx="16" cy="15" r="1"></circle></svg>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.25rem; letter-spacing: 0.5px;">TOTAL BUSES</div>
+                            <div style="font-size: 2rem; font-weight: 800; color: var(--text-main); line-height: 1;">${store.getAdminBuses().length}</div>
+                        </div>
                     </div>
-                    <div style="background: var(--bg-card); padding: 1.5rem; border-radius: 8px; box-shadow: var(--shadow-sm); border-left: 4px solid var(--primary);">
-                        <div style="font-size: 0.875rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.5rem;">TOTAL ROUTES</div>
-                        <div style="font-size: 2.5rem; font-weight: 800; color: var(--text-main);">${store.getAdminRoutes().length}</div>
+                    
+                    <div class="dashboard-card">
+                        <div class="dashboard-icon" style="background: #0ea5e9;">
+                            <svg style="width:24px;height:24px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.25rem; letter-spacing: 0.5px;">TOTAL STOPS</div>
+                            <div style="font-size: 2rem; font-weight: 800; color: var(--text-main); line-height: 1;">${store.getStops().length}</div>
+                        </div>
                     </div>
-                    <div style="background: var(--bg-card); padding: 1.5rem; border-radius: 8px; box-shadow: var(--shadow-sm); border-left: 4px solid var(--primary);">
-                        <div style="font-size: 0.875rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.5rem;">ACTIVE TRIPS</div>
-                        <div style="font-size: 2.5rem; font-weight: 800; color: var(--text-main);">${store.getAdminTrips().filter(t=>t.status==='active').length}</div>
+                    
+                    <div class="dashboard-card">
+                        <div class="dashboard-icon" style="background: #8b5cf6;">
+                            <svg style="width:24px;height:24px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.25rem; letter-spacing: 0.5px;">TOTAL ROUTES</div>
+                            <div style="font-size: 2rem; font-weight: 800; color: var(--text-main); line-height: 1;">${store.getAdminRoutes().length}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-card">
+                        <div class="dashboard-icon" style="background: #10b981;">
+                            <svg style="width:24px;height:24px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.25rem; letter-spacing: 0.5px;">ACTIVE TRIPS</div>
+                            <div style="font-size: 2rem; font-weight: 800; color: var(--text-main); line-height: 1;">${store.getAdminTrips().filter(t=>t.status==='active').length}</div>
+                        </div>
                     </div>
                 </div>
 
-                <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">Recent Updates</h3>
-                <div style="background: var(--bg-card); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden;">
-                    <div style="padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; align-items: center;">
-                        <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--success); margin-right: 1rem;"></div>
-                        <div>
-                            <div style="font-weight: 600;">St. Antony</div>
-                            <div style="font-size: 0.875rem; color: var(--text-muted);">Timing updated: 8:15 AM → 8:20 AM</div>
-                        </div>
-                    </div>
-                    <div style="padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; align-items: center;">
-                        <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--success); margin-right: 1rem;"></div>
-                        <div>
-                            <div style="font-weight: 600;">Mary Matha</div>
-                            <div style="font-size: 0.875rem; color: var(--text-muted);">Route updated: Added Kalamassery stop</div>
-                        </div>
-                    </div>
-                    <div style="padding: 1rem 1.5rem; display: flex; align-items: center;">
-                        <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--success); margin-right: 1rem;"></div>
-                        <div>
-                            <div style="font-weight: 600;">KSRTC Swift</div>
-                            <div style="font-size: 0.875rem; color: var(--text-muted);">New stop added: Ernakulam South</div>
-                        </div>
-                    </div>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                    <h3 style="font-size: 1.25rem; font-weight: 700; margin: 0; color: var(--text-main);">Recent Updates</h3>
+                    ${activities && activities.length > 0 ? `<button onclick="if(confirm('Are you sure you want to clear all history?')) window.store.clearActivities()" style="background: transparent; border: none; color: #ef4444; font-size: 0.875rem; font-weight: 600; cursor: pointer; padding: 0.5rem; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=1">Clear History</button>` : ''}
+                </div>
+                
+                <div style="background: var(--bg-card); border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); border: 1px solid var(--border-color); overflow: hidden;">
+                    ${activitiesHtml}
                 </div>
             </div>
         `;
@@ -524,44 +651,56 @@ class AdminApp {
         let rowsHtml = '';
 
         filteredBuses.forEach(bus => {
+            const statusClass = bus.status === 'active' ? 'badge-success' : 'badge-danger';
             rowsHtml += `
-                <div class="data-grid-row" style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 1rem; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color); align-items: center;">
-                    <div><span class="card-label">Bus Name</span><div style="font-weight: 600; font-size: 1.1rem; color: var(--primary);">${bus.name}</div></div>
-                    <div><span class="card-label">Operator</span><div style="color: var(--text-muted); font-size: 0.875rem;">${bus.operator}</div></div>
-                    <div><span class="card-label">Type</span><div style="color: var(--text-muted); font-size: 0.875rem;">${bus.type}</div></div>
-                    <div><span class="card-label">Status</span><span style="background: ${bus.status==='active'?'#dcfce7':'#fee2e2'}; color: ${bus.status==='active'?'#166534':'#991b1b'}; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">${bus.status.toUpperCase()}</span></div>
-                    <div class="card-actions" style="text-align: right;">
-                        <button class="btn" style="border: 1px solid var(--border-color); padding: 0.25rem 0.75rem; font-size: 0.875rem;" onclick="window.adminApp.openBusEditor('${bus.id}')">Edit</button>
-                        <button class="btn" style="border: 1px solid var(--border-color); padding: 0.25rem 0.75rem; font-size: 0.875rem; margin-left: 0.5rem; background: var(--bg-page);" onclick="window.adminApp.renderBusConfiguration('${bus.id}')">Configure</button>
-                        <button class="btn" style="border: 1px solid #fca5a5; background: #fef2f2; color: #b91c1c; padding: 0.25rem 0.75rem; font-size: 0.875rem; margin-left: 0.5rem;" onclick="window.adminApp.openDeleteBusModal('${bus.id}')">Delete</button>
+                <div class="dashboard-card" style="display: flex; flex-direction: column; align-items: stretch; padding: 1.25rem; gap: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <div style="font-weight: 800; font-size: 1.125rem; color: var(--text-main); margin-bottom: 0.125rem;">${bus.name}</div>
+                            <div style="color: var(--text-muted); font-size: 0.875rem; font-weight: 500;">${bus.operator} &bull; ${bus.type}</div>
+                        </div>
+                        <span class="badge ${statusClass}">${bus.status}</span>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                        <button class="btn btn-outline-primary" style="flex: 1; padding: 0.5rem; font-size: 0.875rem; border-radius: 6px;" onclick="window.adminApp.openBusEditor('${bus.id}')">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: text-bottom; margin-right: 4px;"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg> Edit
+                        </button>
+                        <button class="btn btn-outline-danger" style="flex: 1; padding: 0.5rem; font-size: 0.875rem; border-radius: 6px;" onclick="window.adminApp.openDeleteBusModal('${bus.id}')">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: text-bottom; margin-right: 4px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Delete
+                        </button>
                     </div>
                 </div>
             `;
         });
         
         if (filteredBuses.length === 0) {
-            rowsHtml = `<div style="padding: 2rem; text-align: center; color: var(--text-muted);">No buses found.</div>`;
+            rowsHtml = `
+                <div style="grid-column: 1 / -1;">
+                    <div class="empty-state">
+                        <svg class="empty-state-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8V5a2 2 0 00-2-2H10a2 2 0 00-2 2v3m12 4v4H4v-4m12-4H8m12 0a2 2 0 114 0m-16 0a2 2 0 11-4 0"></path></svg>
+                        <div class="empty-state-title">No buses found</div>
+                        <div class="empty-state-desc">Add your first bus to start building the transit database.</div>
+                        <button class="btn btn-primary" onclick="window.adminApp.openAddBusEditor()">+ Add Bus</button>
+                    </div>
+                </div>
+            `;
         }
 
         const html = `
-            <div style="max-width: 1000px; margin: 0 auto;">
+            <div style="max-width: 1200px; margin: 0 auto; padding-bottom: 3rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
-                    <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0;">Bus Management</h2>
-                    <button class="btn btn-primary" onclick="window.adminApp.openAddBusEditor()">+ Add Bus</button>
+                    <h2 style="font-size: 1.75rem; font-weight: 800; margin: 0; color: var(--text-main); letter-spacing: -0.02em;">Bus Management</h2>
+                    <button class="btn btn-primary" style="padding: 0.75rem 1.5rem;" onclick="window.adminApp.openAddBusEditor()">+ Add Bus</button>
                 </div>
                 
-                <div style="margin-bottom: 1.5rem;">
-                    <input type="text" id="admin-bus-search" placeholder="Search buses by name or operator..." value="${searchQuery}" style="width: 100%; max-width: 400px; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px; font-size: 1rem;">
-                </div>
-                
-                <div style="background: var(--bg-card); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden;">
-                    <div class="data-grid-header" style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 1rem; padding: 1rem 1.5rem; background: var(--bg-page); border-bottom: 1px solid var(--border-color); font-weight: 700; font-size: 0.875rem; color: var(--text-muted);">
-                        <div>BUS NAME</div>
-                        <div>OPERATOR</div>
-                        <div>TYPE</div>
-                        <div>STATUS</div>
-                        <div style="text-align: right;">ACTIONS</div>
+                <div style="margin-bottom: 2rem;">
+                    <div style="position: relative; max-width: 400px;">
+                        <svg style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" stroke-width="2"></circle><line x1="21" y1="21" x2="16.65" y2="16.65" stroke-width="2"></line></svg>
+                        <input type="text" id="admin-bus-search" placeholder="Search buses by name or operator..." value="${searchQuery}" class="form-control" style="padding-left: 2.75rem;">
                     </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
                     ${rowsHtml}
                 </div>
             </div>
@@ -572,7 +711,6 @@ class AdminApp {
         const searchInput = document.getElementById('admin-bus-search');
         if (searchInput) {
             searchInput.focus();
-            // Put cursor at the end
             const val = searchInput.value;
             searchInput.value = '';
             searchInput.value = val;
@@ -585,51 +723,98 @@ class AdminApp {
 
     // --- STOPS ---
 
-    renderStops() {
+    renderStops(searchQuery = '') {
         const stops = store.getStops().sort((a, b) => a.name.localeCompare(b.name));
+        const filteredStops = searchQuery
+            ? stops.filter(s => s.name.toLowerCase().includes(searchQuery.toLowerCase()) || (s.area && s.area.toLowerCase().includes(searchQuery.toLowerCase())))
+            : stops;
+            
         let rowsHtml = '';
 
-        stops.forEach(stop => {
-            const aliases = store.getAliases().filter(a => a.stop_id === stop.id).map(a => a.alias).join(', ');
+        filteredStops.forEach(stop => {
+            const aliases = store.getAliases().filter(a => a.stop_id === stop.id).map(a => `<span style="background: var(--bg-page); color: var(--text-muted); padding: 0.125rem 0.375rem; border-radius: 4px; font-size: 0.7rem; border: 1px solid var(--border-color);">${a.alias}</span>`).join(' ');
+            const statusClass = stop.status === 'active' ? 'badge-success' : 'badge-danger';
+            
             rowsHtml += `
-                <div class="data-grid-row" style="display: grid; grid-template-columns: 40px 2fr 1fr 2fr 1fr 1fr; gap: 1rem; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color); align-items: center;">
-                    <div style="flex-direction: row !important; align-items: center;"><input type="checkbox" class="stop-checkbox" value="${stop.id}" onchange="window.adminApp.updateMultipleDeleteButton()" style="cursor: pointer; width: 1.2rem; height: 1.2rem; margin-right: 8px;"> <span class="card-label" style="margin:0;">Select</span></div>
-                    <div><span class="card-label">Stop Name</span><div style="font-weight: 600; font-size: 1.1rem; color: var(--primary);">${stop.name}</div></div>
-                    <div><span class="card-label">Area</span><div style="color: var(--text-main); font-size: 0.875rem;">${stop.area}</div></div>
-                    <div><span class="card-label">Aliases</span><div style="color: var(--text-muted); font-size: 0.875rem;">${aliases || '-'}</div></div>
-                    <div><span class="card-label">Status</span><span style="background: ${stop.status==='active'?'#dcfce7':'#fee2e2'}; color: ${stop.status==='active'?'#166534':'#991b1b'}; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">${stop.status.toUpperCase()}</span></div>
-                    <div class="card-actions" style="text-align: right;">
-                        <button class="btn" style="border: 1px solid var(--border-color); padding: 0.25rem 0.75rem; font-size: 0.875rem;" onclick="window.adminApp.openStopEditor('${stop.id}')">Edit</button>
-                        <button class="btn" style="border: 1px solid #fca5a5; background: #fef2f2; color: #b91c1c; padding: 0.25rem 0.75rem; font-size: 0.875rem; margin-left: 0.5rem;" onclick="window.adminApp.openDeleteStopModal('${stop.id}')">Delete</button>
+                <div class="dashboard-card" style="display: flex; flex-direction: column; align-items: stretch; padding: 1.25rem; gap: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem;">
+                        <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                            <div style="margin-top: 0.25rem;">
+                                <input type="checkbox" class="stop-checkbox" value="${stop.id}" onchange="window.adminApp.updateMultipleDeleteButton()" style="cursor: pointer; width: 1.1rem; height: 1.1rem; accent-color: var(--primary);">
+                            </div>
+                            <div>
+                                <div style="font-weight: 800; font-size: 1.125rem; color: var(--text-main); margin-bottom: 0.125rem;">${stop.name}</div>
+                                <div style="color: var(--text-muted); font-size: 0.875rem; font-weight: 500;">${stop.area || 'No Area Specified'}</div>
+                                ${aliases ? `<div style="display: flex; gap: 0.25rem; flex-wrap: wrap; margin-top: 0.5rem;">${aliases}</div>` : ''}
+                            </div>
+                        </div>
+                        <span class="badge ${statusClass}">${stop.status}</span>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                        <button class="btn btn-outline-primary" style="flex: 1; padding: 0.5rem; font-size: 0.875rem; border-radius: 6px;" onclick="window.adminApp.openStopEditor('${stop.id}')">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: text-bottom; margin-right: 4px;"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg> Edit
+                        </button>
+                        <button class="btn btn-outline-danger" style="flex: 1; padding: 0.5rem; font-size: 0.875rem; border-radius: 6px;" onclick="window.adminApp.openDeleteStopModal('${stop.id}')">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: text-bottom; margin-right: 4px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Delete
+                        </button>
                     </div>
                 </div>
             `;
         });
+        
+        if (filteredStops.length === 0) {
+            rowsHtml = `
+                <div style="grid-column: 1 / -1;">
+                    <div class="empty-state">
+                        <svg class="empty-state-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        <div class="empty-state-title">No stops found</div>
+                        <div class="empty-state-desc">Add a stop to use it in bus routes.</div>
+                        <button class="btn btn-primary" onclick="window.adminApp.openAddStopEditor()">+ Add Stop</button>
+                    </div>
+                </div>
+            `;
+        }
 
         const html = `
-            <div style="max-width: 1000px; margin: 0 auto;">
+            <div style="max-width: 1200px; margin: 0 auto; padding-bottom: 3rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
-                    <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0;">Stop Management</h2>
+                    <h2 style="font-size: 1.75rem; font-weight: 800; margin: 0; color: var(--text-main); letter-spacing: -0.02em;">Stop Management</h2>
                     <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                        <button class="btn" id="delete-selected-stops-btn" style="border: 1px solid #fca5a5; background: #fef2f2; color: #b91c1c; padding: 0.5rem 1rem; font-size: 0.875rem; opacity: 0.5; pointer-events: none;" onclick="window.adminApp.openDeleteMultipleStopsModal()">Delete Selected</button>
-                        <button class="btn btn-primary">+ Add Stop</button>
+                        <button class="btn btn-outline-danger" id="delete-selected-stops-btn" style="padding: 0.75rem 1.5rem; opacity: 0.5; pointer-events: none; border-radius: 8px;" onclick="window.adminApp.openDeleteMultipleStopsModal()">Delete Selected</button>
+                        <button class="btn btn-primary" style="padding: 0.75rem 1.5rem;" onclick="window.adminApp.openAddStopEditor()">+ Add Stop</button>
                     </div>
                 </div>
                 
-                <div style="background: var(--bg-card); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden;">
-                    <div class="data-grid-header" style="display: grid; grid-template-columns: 40px 2fr 1fr 2fr 1fr 1fr; gap: 1rem; padding: 1rem 1.5rem; background: var(--bg-page); border-bottom: 1px solid var(--border-color); font-weight: 700; font-size: 0.875rem; color: var(--text-muted); align-items: center;">
-                        <div><input type="checkbox" id="select-all-stops" onchange="window.adminApp.toggleAllStops(this)" style="cursor: pointer; width: 1.2rem; height: 1.2rem;"></div>
-                        <div>STOP NAME</div>
-                        <div>AREA</div>
-                        <div>ALIASES</div>
-                        <div>STATUS</div>
-                        <div style="text-align: right;">ACTIONS</div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                    <div style="position: relative; flex: 1; max-width: 400px;">
+                        <svg style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" stroke-width="2"></circle><line x1="21" y1="21" x2="16.65" y2="16.65" stroke-width="2"></line></svg>
+                        <input type="text" id="admin-stop-search" placeholder="Search stops by name or area..." value="${searchQuery}" class="form-control" style="padding-left: 2.75rem;">
                     </div>
+                    
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--text-main); font-weight: 600; font-size: 0.875rem;">
+                        <input type="checkbox" id="select-all-stops" onchange="window.adminApp.toggleAllStops(this)" style="width: 1.1rem; height: 1.1rem; accent-color: var(--primary);">
+                        Select All Shown
+                    </label>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
                     ${rowsHtml}
                 </div>
             </div>
         `;
         this.mainContent.innerHTML = html;
+        
+        const searchInput = document.getElementById('admin-stop-search');
+        if (searchInput) {
+            searchInput.focus();
+            const val = searchInput.value;
+            searchInput.value = '';
+            searchInput.value = val;
+            
+            searchInput.addEventListener('input', (e) => {
+                this.renderStops(e.target.value);
+            });
+        }
     }
 
     openDeleteStopModal(stopId) {
@@ -665,25 +850,28 @@ class AdminApp {
         }
 
         const html = `
-            <div style="max-width: 500px; margin: 0 auto; background: var(--bg-card); border-radius: 8px; box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1); border: 1px solid var(--border-color); display: flex; flex-direction: column;">
-                <div style="padding: 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
-                    <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0; color: #b91c1c;">Delete Stop?</h2>
-                    <button class="btn" onclick="window.adminApp.closeDeleteStopModal()" style="font-size: 1.5rem; line-height: 1; padding: 0.25rem 0.5rem;">&times;</button>
+            <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-header">
+                    <h2 class="modal-title" style="color: #b91c1c;">Delete Stop?</h2>
+                    <button class="modal-close-btn" onclick="window.adminApp.closeDeleteStopModal()">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
                 </div>
                 
-                <div style="padding: 1.5rem; background: #fff;">
+                <div class="modal-body">
                     ${contentHtml}
                 </div>
                 
-                <div style="padding: 1.5rem; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 1rem; background: #f8fafc; border-radius: 0 0 8px 8px;">
-                    <button class="btn" style="border: 1px solid var(--border-color); padding: 0.75rem 1.5rem; font-weight: 600;" onclick="window.adminApp.closeDeleteStopModal()" id="delete-stop-cancel-btn">Cancel</button>
-                    <button id="delete-stop-confirm-btn" class="btn" style="padding: 0.75rem 1.5rem; font-weight: 600; background: #b91c1c; color: #fff; border: 1px solid #991b1b; ${hasData ? 'opacity: 0.5; cursor: not-allowed;' : ''}" ${hasData ? 'disabled' : ''} onclick="window.adminApp.executeDeleteStop(${hasData})">${hasData ? 'Delete Stop & Data' : 'Delete Stop'}</button>
+                <div class="modal-footer" style="background: var(--bg-page);">
+                    <button class="btn btn-outline-primary" style="padding: 0.75rem 1.5rem; border-radius: 8px;" onclick="window.adminApp.closeDeleteStopModal()" id="delete-stop-cancel-btn">Cancel</button>
+                    <button id="delete-stop-confirm-btn" class="btn" style="padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; background: #b91c1c; color: #fff; border: 1px solid #991b1b; ${hasData ? 'opacity: 0.5; cursor: not-allowed;' : ''}" ${hasData ? 'disabled' : ''} onclick="window.adminApp.executeDeleteStop(${hasData})">${hasData ? 'Delete Stop & Data' : 'Delete Stop'}</button>
                 </div>
             </div>
         `;
         
         container.innerHTML = html;
         container.classList.remove('hidden');
+        setTimeout(() => container.classList.add('show'), 10);
         
         if (hasData) {
             setTimeout(() => document.getElementById('delete-stop-confirm-input').focus(), 50);
@@ -705,8 +893,12 @@ class AdminApp {
     }
     
     closeDeleteStopModal() {
-        document.getElementById('admin-modal-container').classList.add('hidden');
-        document.getElementById('admin-modal-container').innerHTML = '';
+        const container = document.getElementById('admin-modal-container');
+        container.classList.remove('show');
+        setTimeout(() => {
+            container.classList.add('hidden');
+            container.innerHTML = '';
+        }, 300);
         this.currentDeleteStopId = null;
     }
     
@@ -729,11 +921,7 @@ class AdminApp {
             try {
                 await store.deleteStop(stopId);
                 
-                const toast = document.createElement('div');
-                toast.style.cssText = "position:fixed; bottom:20px; right:20px; background:#166534; color:#fff; padding:1rem 2rem; border-radius:8px; font-weight:600; box-shadow:0 10px 15px -3px rgba(0,0,0,0.1); z-index:100;";
-                toast.innerHTML = `✓ Stop deleted successfully<br><span style="font-size:0.875rem; font-weight:400;">${stop.name} was deleted.</span>`;
-                document.body.appendChild(toast);
-                setTimeout(() => toast.remove(), 4000);
+                window.toast('Stop deleted successfully', 'success');
                 
                 this.closeDeleteStopModal();
                 this.renderStops();
@@ -766,7 +954,8 @@ class AdminApp {
             btn.style.opacity = '0.5';
             btn.style.pointerEvents = 'none';
             btn.textContent = 'Delete Selected';
-            document.getElementById('select-all-stops').checked = false;
+            const selectAll = document.getElementById('select-all-stops');
+            if (selectAll) selectAll.checked = false;
         }
     }
     
@@ -806,25 +995,28 @@ class AdminApp {
         }
 
         const html = `
-            <div style="max-width: 500px; margin: 0 auto; background: var(--bg-card); border-radius: 8px; box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1); border: 1px solid var(--border-color); display: flex; flex-direction: column;">
-                <div style="padding: 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
-                    <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0; color: #b91c1c;">Delete ${selected.length} Stops?</h2>
-                    <button class="btn" onclick="window.adminApp.closeDeleteMultipleStopsModal()" style="font-size: 1.5rem; line-height: 1; padding: 0.25rem 0.5rem;">&times;</button>
+            <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-header">
+                    <h2 class="modal-title" style="color: #b91c1c;">Delete ${selected.length} Stops?</h2>
+                    <button class="modal-close-btn" onclick="window.adminApp.closeDeleteMultipleStopsModal()">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
                 </div>
                 
-                <div style="padding: 1.5rem; background: #fff;">
+                <div class="modal-body">
                     ${contentHtml}
                 </div>
                 
-                <div style="padding: 1.5rem; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 1rem; background: #f8fafc; border-radius: 0 0 8px 8px;">
-                    <button class="btn" style="border: 1px solid var(--border-color); padding: 0.75rem 1.5rem; font-weight: 600;" onclick="window.adminApp.closeDeleteMultipleStopsModal()" id="delete-multiple-stops-cancel-btn">Cancel</button>
-                    <button id="delete-multiple-stops-confirm-btn" class="btn" style="padding: 0.75rem 1.5rem; font-weight: 600; background: #b91c1c; color: #fff; border: 1px solid #991b1b; ${hasData ? 'opacity: 0.5; cursor: not-allowed;' : ''}" ${hasData ? 'disabled' : ''} onclick="window.adminApp.executeDeleteMultipleStops()">${hasData ? 'Delete Stops & Data' : 'Delete Stops'}</button>
+                <div class="modal-footer" style="background: var(--bg-page);">
+                    <button class="btn btn-outline-primary" style="padding: 0.75rem 1.5rem; border-radius: 8px;" onclick="window.adminApp.closeDeleteMultipleStopsModal()" id="delete-multiple-stops-cancel-btn">Cancel</button>
+                    <button id="delete-multiple-stops-confirm-btn" class="btn" style="padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; background: #b91c1c; color: #fff; border: 1px solid #991b1b; ${hasData ? 'opacity: 0.5; cursor: not-allowed;' : ''}" ${hasData ? 'disabled' : ''} onclick="window.adminApp.executeDeleteMultipleStops()">${hasData ? 'Delete Stops & Data' : 'Delete Stops'}</button>
                 </div>
             </div>
         `;
         
         container.innerHTML = html;
         container.classList.remove('hidden');
+        setTimeout(() => container.classList.add('show'), 10);
         
         if (hasData) {
             setTimeout(() => document.getElementById('delete-multiple-stops-confirm-input').focus(), 50);
@@ -846,8 +1038,12 @@ class AdminApp {
     }
     
     closeDeleteMultipleStopsModal() {
-        document.getElementById('admin-modal-container').classList.add('hidden');
-        document.getElementById('admin-modal-container').innerHTML = '';
+        const container = document.getElementById('admin-modal-container');
+        container.classList.remove('show');
+        setTimeout(() => {
+            container.classList.add('hidden');
+            container.innerHTML = '';
+        }, 300);
         this.currentDeleteMultipleStopIds = null;
     }
     
@@ -869,11 +1065,7 @@ class AdminApp {
             try {
                 await store.deleteMultipleStops(stopIds);
                 
-                const toast = document.createElement('div');
-                toast.style.cssText = "position:fixed; bottom:20px; right:20px; background:#166534; color:#fff; padding:1rem 2rem; border-radius:8px; font-weight:600; box-shadow:0 10px 15px -3px rgba(0,0,0,0.1); z-index:100;";
-                toast.innerHTML = `✓ ${stopIds.length} stops deleted successfully`;
-                document.body.appendChild(toast);
-                setTimeout(() => toast.remove(), 4000);
+                window.toast(`${stopIds.length} stops deleted successfully`, 'success');
                 
                 this.closeDeleteMultipleStopsModal();
                 this.renderStops();
@@ -914,61 +1106,66 @@ class AdminApp {
         this.currentEditStopAliases.forEach((alias, idx) => {
             aliasesHtml += `
                 <div class="alias-row" style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
-                    <input type="text" class="edit-stop-alias" value="${alias}" style="flex: 1; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px; font-size: 1rem;" oninput="window.adminApp.markStopDirty()">
-                    <button class="btn" style="padding: 0 1rem; color: #b91c1c; border: 1px solid #fca5a5; background: #fef2f2;" onclick="window.adminApp.removeStopAliasField(${idx})">🗑</button>
+                    <input type="text" class="edit-stop-alias form-control" value="${alias}" style="flex: 1;" oninput="window.adminApp.markStopDirty()" placeholder="e.g. KVTM, Kothamangalam Stand">
+                    <button class="btn btn-outline-danger" style="padding: 0 1rem;" onclick="window.adminApp.removeStopAliasField(${idx})">
+                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                    </button>
                 </div>
             `;
         });
 
         const html = `
-            <div style="max-width: 500px; margin: 0 auto; background: var(--bg-card); border-radius: 8px; box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1); border: 1px solid var(--border-color); display: flex; flex-direction: column; max-height: 90vh;">
-                <div style="padding: 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
-                    <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0;">${title}</h2>
-                    <button class="btn" onclick="window.adminApp.closeStopEditor()" style="font-size: 1.5rem; line-height: 1; padding: 0.25rem 0.5rem;">&times;</button>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">${title}</h2>
+                    <button class="modal-close-btn" onclick="window.adminApp.closeStopEditor()">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
                 </div>
                 
-                <div style="padding: 1.5rem; overflow-y: auto; background: #f8fafc;">
-                    <div id="stop-editor-error" class="hidden" style="background: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 4px; margin-bottom: 1rem; font-weight: 500; font-size: 0.875rem;"></div>
+                <div class="modal-body">
+                    <div id="stop-editor-error" class="hidden" style="background: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem; font-weight: 500; font-size: 0.875rem;"></div>
                     
-                    <div style="margin-bottom: 1rem;">
-                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.875rem; color: #334155;">Stop Name <span style="color:#b91c1c">*</span></label>
-                        <input type="text" id="edit-stop-name" value="${s.name}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px; font-size: 1rem;" oninput="window.adminApp.markStopDirty()">
+                    <div class="form-group">
+                        <label>Stop Name <span style="color:#b91c1c">*</span></label>
+                        <input type="text" id="edit-stop-name" value="${s.name}" class="form-control" oninput="window.adminApp.markStopDirty()" placeholder="e.g. Kothamangalam">
                     </div>
 
-                    <div style="margin-bottom: 1rem;">
-                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.875rem; color: #334155;">Area (Optional)</label>
-                        <input type="text" id="edit-stop-area" value="${s.area || ''}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px; font-size: 1rem;" oninput="window.adminApp.markStopDirty()">
+                    <div class="form-group" style="margin-top: 1.25rem;">
+                        <label>Area (Optional)</label>
+                        <input type="text" id="edit-stop-area" value="${s.area || ''}" class="form-control" oninput="window.adminApp.markStopDirty()" placeholder="e.g. Ernakulam District">
                     </div>
                     
-                    <div style="margin-bottom: 1rem;">
-                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.875rem; color: #334155;">Status</label>
-                        <select id="edit-stop-status" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px; font-size: 1rem;" onchange="window.adminApp.markStopDirty()">
+                    <div class="form-group" style="margin-top: 1.25rem;">
+                        <label>Status</label>
+                        <select id="edit-stop-status" class="form-control" onchange="window.adminApp.markStopDirty()">
                             <option value="active" ${s.status==='active'?'selected':''}>Active</option>
                             <option value="inactive" ${s.status==='inactive'?'selected':''}>Inactive</option>
                         </select>
                     </div>
 
-                    <div style="margin-bottom: 1rem;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                            <label style="font-weight: 600; font-size: 0.875rem; color: #334155;">Aliases (Alternative Names)</label>
-                            <button class="btn" style="border: 1px dashed var(--primary); color: var(--primary); padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="window.adminApp.addStopAliasField()">+ Add Alias</button>
+                    <div class="form-group" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <label style="margin: 0;">Aliases (Alternative Names)</label>
+                            <button class="btn btn-outline-primary" style="padding: 0.25rem 0.75rem; font-size: 0.75rem; border-radius: 4px;" onclick="window.adminApp.addStopAliasField()">+ Add Alias</button>
                         </div>
                         <div id="edit-stop-aliases-container">
                             ${aliasesHtml}
-                            ${this.currentEditStopAliases.length === 0 ? '<div style="color: var(--text-muted); font-size: 0.875rem; font-style: italic;">No aliases added.</div>' : ''}
+                            ${this.currentEditStopAliases.length === 0 ? '<div style="color: var(--text-muted); font-size: 0.875rem; font-style: italic; background: var(--bg-page); padding: 1rem; border-radius: 6px; text-align: center;">No aliases added. Aliases help OCR recognize different spellings of this stop.</div>' : ''}
                         </div>
                     </div>
                 </div>
                 
-                <div style="padding: 1.5rem; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 1rem; background: #fff; border-radius: 0 0 8px 8px;">
-                    <button class="btn" style="border: 1px solid var(--border-color); padding: 0.75rem 1.5rem; font-weight: 600;" onclick="window.adminApp.closeStopEditor()">Cancel</button>
-                    <button id="save-stop-btn" class="btn btn-primary" style="padding: 0.75rem 2rem; font-weight: 600;" onclick="window.adminApp.saveStop()">Save Changes</button>
+                <div class="modal-footer">
+                    <button class="btn btn-outline-primary" style="padding: 0.75rem 1.5rem; border-radius: 8px;" onclick="window.adminApp.closeStopEditor()">Cancel</button>
+                    <button id="save-stop-btn" class="btn btn-primary" style="padding: 0.75rem 2rem; border-radius: 8px;" onclick="window.adminApp.saveStop()">Save Changes</button>
                 </div>
             </div>
         `;
         
         container.innerHTML = html;
         container.classList.remove('hidden');
+        setTimeout(() => container.classList.add('show'), 10);
         this.stopDirty = false;
     }
 
@@ -997,10 +1194,17 @@ class AdminApp {
         if (this.stopDirty) {
             if (!confirm('You have unsaved changes. Discard them?')) return;
         }
-        document.getElementById('admin-modal-container').classList.add('hidden');
-        document.getElementById('admin-modal-container').innerHTML = '';
+        
+        const container = document.getElementById('admin-modal-container');
+        container.classList.remove('show');
+        setTimeout(() => {
+            container.classList.add('hidden');
+            container.innerHTML = '';
+        }, 300);
+        
         this.currentEditStop = null;
         this.currentEditStopAliases = null;
+        this.stopDirty = false;
     }
 
     async saveStop() {
@@ -1055,41 +1259,107 @@ class AdminApp {
 
     // --- ROUTES ---
 
-    renderRoutes() {
+    renderRoutes(searchQuery = '') {
         const routes = store.getAdminRoutes();
+        const filteredRoutes = searchQuery
+            ? routes.filter(r => {
+                const bus = store.getBusById(r.bus_id);
+                const busName = bus ? bus.name.toLowerCase() : '';
+                const origin = store.getStopById(r.origin_stop_id);
+                const dest = store.getStopById(r.destination_stop_id);
+                const routeName = `${origin ? origin.name.toLowerCase() : ''} to ${dest ? dest.name.toLowerCase() : ''}`;
+                return busName.includes(searchQuery.toLowerCase()) || routeName.includes(searchQuery.toLowerCase());
+            })
+            : routes;
+            
         let rowsHtml = '';
 
-        routes.forEach(route => {
+        filteredRoutes.forEach(route => {
             const bus = store.getBusById(route.bus_id);
             const routeStops = store.getRouteStops().filter(rs => rs.route_id === route.id).sort((a,b)=>a.stop_order - b.stop_order);
-            const stopsList = routeStops.map((rs, i) => `${i+1}. ${store.getStopById(rs.stop_id).name}`).join('<br>');
+            
+            let timelineHtml = `<div class="timeline-container">
+                                    <div class="timeline-track"></div>`;
+            
+            routeStops.forEach((rs, index) => {
+                const stopName = store.getStopById(rs.stop_id).name;
+                const isOrigin = index === 0;
+                const isDest = index === routeStops.length - 1;
+                let nodeClass = isOrigin ? 'origin' : (isDest ? 'destination' : 'via');
+                
+                timelineHtml += `
+                    <div class="timeline-node ${nodeClass}">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">${stopName}</div>
+                        ${rs.distance_from_previous ? `<div class="timeline-subtext">${rs.distance_from_previous} km from previous</div>` : ''}
+                    </div>
+                `;
+            });
+            
+            timelineHtml += `</div>`;
 
             rowsHtml += `
-                <div style="background: var(--bg-card); padding: 1.5rem; border-radius: 8px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
-                    <div class="route-header-row" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+                <div class="dashboard-card" style="display: flex; flex-direction: column; padding: 1.5rem; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
                         <div>
-                            <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem;">${bus.name}</h3>
-                            <div style="color: var(--text-muted); font-size: 0.875rem;">${store.getStopById(route.origin_stop_id).name} → ${store.getStopById(route.destination_stop_id).name}</div>
+                            <div style="font-weight: 800; font-size: 1.25rem; color: var(--text-main); margin-bottom: 0.25rem;">${bus ? bus.name : 'Unknown Bus'}</div>
+                            <div style="color: var(--text-muted); font-size: 0.875rem;">${store.getStopById(route.origin_stop_id)?.name} &rarr; ${store.getStopById(route.destination_stop_id)?.name}</div>
                         </div>
-                        <button class="btn" style="border: 1px solid var(--border-color); padding: 0.25rem 0.75rem; font-size: 0.875rem;" onclick="window.adminApp.openRouteStopsEditor('${route.id}')">Edit Stops</button>
+                        <button class="btn btn-outline-primary" style="padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.875rem;" onclick="window.adminApp.openRouteStopsEditor('${route.id}')">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: text-bottom; margin-right: 4px;"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg> Edit Stops
+                        </button>
                     </div>
+                    
                     <div>
-                        <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.5rem;">STOP SEQUENCE</div>
-                        <div style="font-size: 0.875rem; color: var(--text-main); line-height: 1.5;">${stopsList}</div>
+                        <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Route Timeline</div>
+                        ${timelineHtml}
                     </div>
                 </div>
             `;
         });
+        
+        if (filteredRoutes.length === 0) {
+            rowsHtml = `
+                <div class="empty-state">
+                    <svg class="empty-state-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+                    <div class="empty-state-title">No routes found</div>
+                    <div class="empty-state-desc">Create routes from the Bus Management page by configuring a bus.</div>
+                    <button class="btn btn-primary" onclick="window.adminApp.renderBuses()">Go to Buses</button>
+                </div>
+            `;
+        }
 
         const html = `
-            <div style="max-width: 1000px; margin: 0 auto;">
+            <div style="max-width: 1000px; margin: 0 auto; padding-bottom: 3rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                    <h2 style="font-size: 1.5rem; font-weight: 700;">Route Management</h2>
+                    <h2 style="font-size: 1.75rem; font-weight: 800; margin: 0; color: var(--text-main); letter-spacing: -0.02em;">Route Management</h2>
                 </div>
-                ${rowsHtml}
+                
+                <div style="margin-bottom: 2rem;">
+                    <div style="position: relative; max-width: 400px;">
+                        <svg style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" stroke-width="2"></circle><line x1="21" y1="21" x2="16.65" y2="16.65" stroke-width="2"></line></svg>
+                        <input type="text" id="admin-route-search" placeholder="Search routes by bus or stop name..." value="${searchQuery}" class="form-control" style="padding-left: 2.75rem;">
+                    </div>
+                </div>
+                
+                <div>
+                    ${rowsHtml}
+                </div>
             </div>
         `;
         this.mainContent.innerHTML = html;
+        
+        const searchInput = document.getElementById('admin-route-search');
+        if (searchInput) {
+            searchInput.focus();
+            const val = searchInput.value;
+            searchInput.value = '';
+            searchInput.value = val;
+            
+            searchInput.addEventListener('input', (e) => {
+                this.renderRoutes(e.target.value);
+            });
+        }
     }
 
     // --- BUS EDITOR ---
@@ -1112,28 +1382,30 @@ class AdminApp {
         const b = this.currentEditBus;
         
         const html = `
-            <div style="max-width: 500px; margin: 0 auto; background: var(--bg-card); border-radius: 8px; box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1); border: 1px solid var(--border-color); display: flex; flex-direction: column;">
-                <div style="padding: 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
-                    <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0;">${title}</h2>
-                    <button class="btn" onclick="window.adminApp.closeBusEditor()" style="font-size: 1.5rem; line-height: 1; padding: 0.25rem 0.5rem;">&times;</button>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">${title}</h2>
+                    <button class="modal-close-btn" onclick="window.adminApp.closeBusEditor()">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
                 </div>
                 
-                <div style="padding: 1.5rem; background: #f8fafc;">
-                    <div id="bus-editor-error" class="hidden" style="background: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 4px; margin-bottom: 1rem; font-weight: 500; font-size: 0.875rem;"></div>
+                <div class="modal-body">
+                    <div id="bus-editor-error" class="hidden" style="background: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem; font-weight: 500; font-size: 0.875rem;"></div>
                     
-                    <div style="margin-bottom: 1rem;">
-                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.875rem; color: #334155;">Bus Name</label>
-                        <input type="text" id="edit-bus-name" value="${b.name}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px; font-size: 1rem;" oninput="window.adminApp.markBusDirty()">
+                    <div class="form-group">
+                        <label>Bus Name</label>
+                        <input type="text" id="edit-bus-name" value="${b.name}" class="form-control" oninput="window.adminApp.markBusDirty()" placeholder="e.g. Navya, KSRTC Fast">
                     </div>
 
-                    <div style="margin-bottom: 1rem;">
-                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.875rem; color: #334155;">Operator</label>
-                        <input type="text" id="edit-bus-operator" value="${b.operator}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px; font-size: 1rem;" oninput="window.adminApp.markBusDirty()">
+                    <div class="form-group" style="margin-top: 1.25rem;">
+                        <label>Operator</label>
+                        <input type="text" id="edit-bus-operator" value="${b.operator}" class="form-control" oninput="window.adminApp.markBusDirty()" placeholder="e.g. Private, KSRTC">
                     </div>
 
-                    <div style="margin-bottom: 1rem;">
-                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.875rem; color: #334155;">Bus Type</label>
-                        <select id="edit-bus-type" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px; font-size: 1rem;" onchange="window.adminApp.markBusDirty()">
+                    <div class="form-group" style="margin-top: 1.25rem;">
+                        <label>Bus Type</label>
+                        <select id="edit-bus-type" class="form-control" onchange="window.adminApp.markBusDirty()">
                             <option value="Private" ${b.type==='Private'?'selected':''}>Private</option>
                             <option value="KSRTC" ${b.type==='KSRTC'?'selected':''}>KSRTC</option>
                             <option value="KSRTC Swift" ${b.type==='KSRTC Swift'?'selected':''}>KSRTC Swift</option>
@@ -1141,24 +1413,25 @@ class AdminApp {
                         </select>
                     </div>
 
-                    <div style="margin-bottom: 1rem;">
-                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.875rem; color: #334155;">Status</label>
-                        <select id="edit-bus-status" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px; font-size: 1rem;" onchange="window.adminApp.markBusDirty()">
+                    <div class="form-group" style="margin-top: 1.25rem;">
+                        <label>Status</label>
+                        <select id="edit-bus-status" class="form-control" onchange="window.adminApp.markBusDirty()">
                             <option value="active" ${b.status==='active'?'selected':''}>Active</option>
                             <option value="inactive" ${b.status==='inactive'?'selected':''}>Inactive</option>
                         </select>
                     </div>
                 </div>
                 
-                <div style="padding: 1.5rem; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 1rem; background: #fff; border-radius: 0 0 8px 8px;">
-                    <button class="btn" style="border: 1px solid var(--border-color); padding: 0.75rem 1.5rem; font-weight: 600;" onclick="window.adminApp.closeBusEditor()">Cancel</button>
-                    <button class="btn btn-primary" style="padding: 0.75rem 2rem; font-weight: 600;" onclick="window.adminApp.saveBus()">Save Changes</button>
+                <div class="modal-footer">
+                    <button class="btn btn-outline-primary" style="padding: 0.75rem 1.5rem; border-radius: 8px;" onclick="window.adminApp.closeBusEditor()">Cancel</button>
+                    <button class="btn btn-primary" style="padding: 0.75rem 2rem; border-radius: 8px;" onclick="window.adminApp.saveBus()">Save Changes</button>
                 </div>
             </div>
         `;
         
         container.innerHTML = html;
         container.classList.remove('hidden');
+        setTimeout(() => container.classList.add('show'), 10);
         this.busDirty = false;
     }
     
@@ -1204,11 +1477,7 @@ class AdminApp {
             await store.updateBus(savedBusId, { name, operator, type, status });
             
             // Show success notification for update
-            const toast = document.createElement('div');
-            toast.style.cssText = "position:fixed; bottom:20px; right:20px; background:#166534; color:#fff; padding:1rem 2rem; border-radius:8px; font-weight:600; box-shadow:0 10px 15px -3px rgba(0,0,0,0.1); z-index:100;";
-            toast.innerHTML = `✓ Bus updated successfully`;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 4000);
+            window.toast('Bus updated successfully', 'success');
             
             this.busDirty = false;
             this.closeBusEditor();
@@ -1221,18 +1490,21 @@ class AdminApp {
             // Transition to configuration prompt
             const container = document.getElementById('admin-modal-container');
             container.innerHTML = `
-                <div style="max-width: 500px; margin: 0 auto; background: var(--bg-card); border-radius: 8px; box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1); border: 1px solid var(--border-color); display: flex; flex-direction: column; text-align: center; padding: 2rem;">
-                    <div style="width: 64px; height: 64px; background: #dcfce7; color: #166534; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1.5rem;">✓</div>
+                <div class="modal-content" style="text-align: center; padding: 2rem;">
+                    <div style="width: 64px; height: 64px; background: #dcfce7; color: #166534; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                        <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    </div>
                     <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--text-main);">Bus created successfully</h2>
                     <div style="font-size: 1.25rem; font-weight: 700; color: var(--primary); margin-bottom: 1rem;">${name}</div>
                     <p style="color: var(--text-muted); margin-bottom: 2rem;">Would you like to configure its route and timings now?</p>
                     
                     <div style="display: flex; gap: 1rem; justify-content: center;">
-                        <button class="btn" style="border: 1px solid var(--border-color); padding: 0.75rem 1.5rem; font-weight: 600;" onclick="window.adminApp.closeBusEditor(); window.adminApp.renderBuses();">Later</button>
-                        <button class="btn btn-primary" style="padding: 0.75rem 1.5rem; font-weight: 600;" onclick="window.adminApp.closeBusEditor(); window.adminApp.renderBusConfiguration('${savedBusId}');">Configure Route</button>
+                        <button class="btn btn-outline-primary" style="padding: 0.75rem 1.5rem; border-radius: 8px;" onclick="window.adminApp.closeBusEditor(); window.adminApp.renderBuses();">Later</button>
+                        <button class="btn btn-primary" style="padding: 0.75rem 1.5rem; border-radius: 8px;" onclick="window.adminApp.closeBusEditor(); window.adminApp.renderBusConfiguration('${savedBusId}');">Configure Route</button>
                     </div>
                 </div>
             `;
+            setTimeout(() => container.classList.add('show'), 10);
         }
     }
     
@@ -1805,25 +2077,28 @@ class AdminApp {
         }
 
         const html = `
-            <div style="max-width: 500px; margin: 0 auto; background: var(--bg-card); border-radius: 8px; box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1); border: 1px solid var(--border-color); display: flex; flex-direction: column;">
-                <div style="padding: 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
-                    <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0; color: #b91c1c;">Delete Bus?</h2>
-                    <button class="btn" onclick="window.adminApp.closeDeleteBusModal()" style="font-size: 1.5rem; line-height: 1; padding: 0.25rem 0.5rem;">&times;</button>
+            <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-header">
+                    <h2 class="modal-title" style="color: #b91c1c;">Delete Bus?</h2>
+                    <button class="modal-close-btn" onclick="window.adminApp.closeDeleteBusModal()">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
                 </div>
                 
-                <div style="padding: 1.5rem; background: #fff;">
+                <div class="modal-body">
                     ${contentHtml}
                 </div>
                 
-                <div style="padding: 1.5rem; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 1rem; background: #f8fafc; border-radius: 0 0 8px 8px;">
-                    <button class="btn" style="border: 1px solid var(--border-color); padding: 0.75rem 1.5rem; font-weight: 600;" onclick="window.adminApp.closeDeleteBusModal()" id="delete-bus-cancel-btn">Cancel</button>
-                    <button id="delete-bus-confirm-btn" class="btn" style="padding: 0.75rem 1.5rem; font-weight: 600; background: #b91c1c; color: #fff; border: 1px solid #991b1b; ${hasData ? 'opacity: 0.5; cursor: not-allowed;' : ''}" ${hasData ? 'disabled' : ''} onclick="window.adminApp.executeDeleteBus(${hasData})">${hasData ? 'Delete Everything' : 'Delete Bus'}</button>
+                <div class="modal-footer" style="background: var(--bg-page);">
+                    <button class="btn btn-outline-primary" style="padding: 0.75rem 1.5rem; border-radius: 8px;" onclick="window.adminApp.closeDeleteBusModal()" id="delete-bus-cancel-btn">Cancel</button>
+                    <button id="delete-bus-confirm-btn" class="btn" style="padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; background: #b91c1c; color: #fff; border: 1px solid #991b1b; ${hasData ? 'opacity: 0.5; cursor: not-allowed;' : ''}" ${hasData ? 'disabled' : ''} onclick="window.adminApp.executeDeleteBus(${hasData})">${hasData ? 'Delete Everything' : 'Delete Bus'}</button>
                 </div>
             </div>
         `;
         
         container.innerHTML = html;
         container.classList.remove('hidden');
+        setTimeout(() => container.classList.add('show'), 10);
         
         if (hasData) {
             setTimeout(() => document.getElementById('delete-bus-confirm-input').focus(), 50);
@@ -1845,8 +2120,12 @@ class AdminApp {
     }
     
     closeDeleteBusModal() {
-        document.getElementById('admin-modal-container').classList.add('hidden');
-        document.getElementById('admin-modal-container').innerHTML = '';
+        const container = document.getElementById('admin-modal-container');
+        container.classList.remove('show');
+        setTimeout(() => {
+            container.classList.add('hidden');
+            container.innerHTML = '';
+        }, 300);
         this.currentDeleteBusId = null;
     }
     
@@ -1871,16 +2150,11 @@ class AdminApp {
             try {
                 await store.deleteBus(busId);
                 
-                // Show success notification
-                const toast = document.createElement('div');
-                toast.style.cssText = "position:fixed; bottom:20px; right:20px; background:#166534; color:#fff; padding:1rem 2rem; border-radius:8px; font-weight:600; box-shadow:0 10px 15px -3px rgba(0,0,0,0.1); z-index:100;";
                 if (hasData) {
-                    toast.innerHTML = `✓ Bus deleted successfully<br><span style="font-size:0.875rem; font-weight:400;">${bus.name} and its associated data were deleted.</span>`;
+                    window.toast('Bus and its associated data were deleted successfully', 'success');
                 } else {
-                    toast.innerHTML = `✓ Bus deleted successfully<br><span style="font-size:0.875rem; font-weight:400;">${bus.name} was deleted.</span>`;
+                    window.toast('Bus deleted successfully', 'success');
                 }
-                document.body.appendChild(toast);
-                setTimeout(() => toast.remove(), 4000);
                 
                 this.closeDeleteBusModal();
                 this.renderBuses();
@@ -1904,44 +2178,96 @@ class AdminApp {
 
     // --- TIMINGS ---
 
-    renderTimings() {
+    renderTimings(searchQuery = '') {
         const trips = store.getAdminTrips();
+        // We will group trips by Route ID for a cleaner matrix view, 
+        // similar to how the routes are displayed.
+        const routesMap = new Map();
+        
+        trips.forEach(trip => {
+            if (!routesMap.has(trip.route_id)) {
+                routesMap.set(trip.route_id, []);
+            }
+            routesMap.get(trip.route_id).push(trip);
+        });
+
+        const routesList = Array.from(routesMap.keys()).map(rid => store.getRouteById(rid)).filter(r => r);
+        
+        const filteredRoutes = searchQuery
+            ? routesList.filter(r => {
+                const bus = store.getBusById(r.bus_id);
+                const busName = bus ? bus.name.toLowerCase() : '';
+                const origin = store.getStopById(r.origin_stop_id);
+                const dest = store.getStopById(r.destination_stop_id);
+                const routeName = `${origin ? origin.name.toLowerCase() : ''} to ${dest ? dest.name.toLowerCase() : ''}`;
+                return busName.includes(searchQuery.toLowerCase()) || routeName.includes(searchQuery.toLowerCase());
+            })
+            : routesList;
+            
         let rowsHtml = '';
 
-        trips.forEach(trip => {
-            const route = store.getRouteById(trip.route_id);
+        filteredRoutes.forEach(route => {
             const bus = store.getBusById(route.bus_id);
+            const routeTrips = routesMap.get(route.id) || [];
             
             rowsHtml += `
-                <div class="route-header-row" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color);">
-                    <div>
-                        <div style="font-weight: 600;">${bus.name}</div>
-                        <div style="color: var(--text-muted); font-size: 0.875rem;">${store.getStopById(route.origin_stop_id).name} → ${store.getStopById(route.destination_stop_id).name}</div>
+                <div class="dashboard-card" style="display: flex; flex-direction: column; padding: 1.5rem; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <div style="font-weight: 800; font-size: 1.25rem; color: var(--text-main); margin-bottom: 0.25rem;">${bus ? bus.name : 'Unknown Bus'}</div>
+                            <div style="color: var(--text-muted); font-size: 0.875rem;">${store.getStopById(route.origin_stop_id)?.name} &rarr; ${store.getStopById(route.destination_stop_id)?.name}</div>
+                            <div style="margin-top: 0.5rem; font-size: 0.875rem; font-weight: 600; color: var(--primary); background: var(--bg-page); display: inline-block; padding: 0.25rem 0.5rem; border-radius: 4px;">${routeTrips.length} active trips</div>
+                        </div>
+                        <button class="btn btn-outline-primary edit-timings-btn" data-route="${route.id}" style="padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.875rem;" onclick="window.adminApp.renderTimingsConfigurationModal('${route.id}')">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: text-bottom; margin-right: 4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Manage Timings
+                        </button>
                     </div>
-                    <button class="btn btn-primary edit-timings-btn" data-trip="${trip.id}" style="padding: 0.5rem 1rem; font-size: 0.875rem;">Manage Timings</button>
                 </div>
             `;
         });
+        
+        if (filteredRoutes.length === 0) {
+            rowsHtml = `
+                <div class="empty-state">
+                    <svg class="empty-state-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <div class="empty-state-title">No timings found</div>
+                    <div class="empty-state-desc">You haven't configured any schedules yet. Go to Bus Management to configure routes and timings.</div>
+                </div>
+            `;
+        }
 
         const html = `
-            <div style="max-width: 1000px; margin: 0 auto;" id="timings-list-view">
+            <div style="max-width: 1000px; margin: 0 auto; padding-bottom: 3rem;" id="timings-list-view">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                    <h2 style="font-size: 1.5rem; font-weight: 700;">Timings Management</h2>
+                    <h2 style="font-size: 1.75rem; font-weight: 800; margin: 0; color: var(--text-main); letter-spacing: -0.02em;">Timing Management</h2>
                 </div>
-                <div style="background: var(--bg-card); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden; border: 1px solid var(--border-color);">
+                
+                <div style="margin-bottom: 2rem;">
+                    <div style="position: relative; max-width: 400px;">
+                        <svg style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" stroke-width="2"></circle><line x1="21" y1="21" x2="16.65" y2="16.65" stroke-width="2"></line></svg>
+                        <input type="text" id="admin-timing-search" placeholder="Search timings by bus or route..." value="${searchQuery}" class="form-control" style="padding-left: 2.75rem;">
+                    </div>
+                </div>
+                
+                <div>
                     ${rowsHtml}
                 </div>
             </div>
             <div id="timings-editor-view"></div>
         `;
         this.mainContent.innerHTML = html;
-
-        document.querySelectorAll('.edit-timings-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const tripId = e.target.getAttribute('data-trip');
-                this.renderTimingEditor(tripId);
+        
+        const searchInput = document.getElementById('admin-timing-search');
+        if (searchInput) {
+            searchInput.focus();
+            const val = searchInput.value;
+            searchInput.value = '';
+            searchInput.value = val;
+            
+            searchInput.addEventListener('input', (e) => {
+                this.renderTimings(e.target.value);
             });
-        });
+        }
     }
 
     renderTimingEditor(tripId) {
@@ -1961,31 +2287,29 @@ class AdminApp {
 
             stopsTimingsHtml += `
                 <div class="timing-row" style="display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color);">
-                    <div style="font-weight: 500;">${stop.name}</div>
-                    <input type="time" class="timing-input" data-trip="${trip.id}" data-stop="${stop.id}" value="${timeStr}" style="padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px; font-family: monospace; font-size: 1rem;">
+                    <div style="font-weight: 600; color: var(--text-main);">${stop.name}</div>
+                    <input type="time" class="timing-input form-control" data-trip="${trip.id}" data-stop="${stop.id}" value="${timeStr}" style="width: auto; font-family: monospace; font-size: 1rem;">
                 </div>
             `;
         });
 
         const html = `
-            <div style="max-width: 600px; margin: 0 auto;">
-                <div style="margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between;">
+            <div style="max-width: 600px; margin: 0 auto; padding-bottom: 3rem;">
+                <div style="margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between;">
                     <div style="display: flex; align-items: center; gap: 1rem;">
-                        <button onclick="window.location.hash='#timings'; setTimeout(()=>window.adminApp.renderTimings(), 10);" class="btn" style="border: 1px solid var(--border-color); padding: 0.5rem 1rem;">← Back</button>
+                        <button onclick="window.location.hash='#timings'; setTimeout(()=>window.adminApp.renderTimings(), 10);" class="btn btn-outline-primary" style="padding: 0.5rem 1rem; border-radius: 6px;">← Back</button>
                         <div>
-                            <h2 style="font-size: 1.25rem; font-weight: 700; margin: 0;">Edit Timings: ${bus.name}</h2>
-                            <div style="font-size: 0.875rem; color: var(--text-muted);">${store.getStopById(route.origin_stop_id).name} → ${store.getStopById(route.destination_stop_id).name}</div>
+                            <h2 style="font-size: 1.5rem; font-weight: 800; margin: 0; color: var(--text-main);">Edit Timings: ${bus.name}</h2>
+                            <div style="font-size: 0.875rem; color: var(--text-muted); font-weight: 500;">${store.getStopById(route.origin_stop_id).name} &rarr; ${store.getStopById(route.destination_stop_id).name}</div>
                         </div>
                     </div>
-                    <button id="save-timings-btn" class="btn btn-primary" style="padding: 0.5rem 1.5rem;">SAVE CHANGES</button>
+                    <button id="save-timings-btn" class="btn btn-primary" style="padding: 0.75rem 1.5rem; border-radius: 8px;">Save Changes</button>
                 </div>
                 
-                <div id="save-msg" class="hidden" style="background: #dcfce7; color: #166534; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem; text-align: center; font-weight: 600;">Changes saved successfully!</div>
-
-                <div style="background: var(--bg-card); border-radius: 8px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); overflow: hidden;">
-                    <div style="padding: 1rem 1.5rem; background: var(--bg-page); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; color: var(--text-muted);">
-                        <div>STOP NAME</div>
-                        <div>ARRIVAL / DEPARTURE TIME</div>
+                <div class="dashboard-card" style="padding: 0; overflow: hidden;">
+                    <div style="padding: 1rem 1.5rem; background: var(--bg-page); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">
+                        <div>Stop Name</div>
+                        <div>Arrival / Departure Time</div>
                     </div>
                     ${stopsTimingsHtml}
                 </div>
@@ -2014,10 +2338,12 @@ class AdminApp {
                     }
                 }
                 await Promise.all(promises);
-                const msg = document.getElementById('save-msg');
-                msg.classList.remove('hidden');
-                setTimeout(() => msg.classList.add('hidden'), 3000);
-            } finally {
+                window.toast('Timings saved successfully', 'success');
+                setTimeout(() => {
+                    saveBtn.innerText = 'Save Changes';
+                    saveBtn.disabled = false;
+                }, 1000);
+            } catch (err) {
                 saveBtn.disabled = false;
                 saveBtn.innerText = originalText;
             }
@@ -2240,3 +2566,39 @@ class AdminApp {
 document.addEventListener('DOMContentLoaded', () => {
     window.adminApp = new AdminApp();
 });
+
+// --- TOAST NOTIFICATION SYSTEM ---
+window.toast = function(message, type = 'success') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+    
+    const toast = document.createElement('div');
+    toast.className = "toast " + type;
+    
+    let icon = '';
+    if (type === 'success') icon = '<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>';
+    else if (type === 'error') icon = '<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>';
+    else icon = '<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>';
+    
+    let title = type === 'success' ? 'Success' : (type === 'error' ? 'Error' : 'Notice');
+    
+    toast.innerHTML = `
+        <div class="toast-icon">${icon}</div>
+        <div class="toast-content">
+            <div class="toast-title">${title}</div>
+            <div class="toast-message">${message}</div>
+        </div>
+    `;
+    
+    container.appendChild(toast);
+    
+    // Animate in
+    setTimeout(() => toast.classList.add('show'), 10);
+    
+    // Auto remove
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 4000);
+};
+ 
