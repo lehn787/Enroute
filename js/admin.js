@@ -86,13 +86,17 @@ class AdminApp {
             this.authContainer.classList.remove('hidden');
             
             if (hash === '#signup') {
+                document.title = "EnRoute – Admin Login";
                 this.renderSignup();
             } else if (hash === '#forgot-password') {
+                document.title = "EnRoute – Admin Login";
                 this.renderForgotPassword();
             } else if (hash.startsWith('#reset-password') || hash.includes('access_token=')) {
                 // If they have no session but are trying to reset password, the link is expired/used.
+                document.title = "EnRoute – Reset Password";
                 this.renderResetExpired();
             } else {
+                document.title = "EnRoute – Admin Login";
                 this.renderLogin();
                 // Ensure URL reflects login state
                 if (hash !== '#login') {
@@ -110,6 +114,7 @@ class AdminApp {
             }
             this.appContainer.classList.add('hidden');
             this.authContainer.classList.remove('hidden');
+            document.title = "EnRoute – Reset Password";
             this.renderResetPassword();
             return;
         }
@@ -126,6 +131,7 @@ class AdminApp {
         this.userEmailDisplay.textContent = session.user.email;
         this.mainContent.innerHTML = ''; // Clear
 
+        document.title = "EnRoute Admin";
         this.updateNav(hash);
 
         // Routing for authenticated pages
